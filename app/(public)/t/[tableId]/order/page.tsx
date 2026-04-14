@@ -1,4 +1,7 @@
-import { DinerSetupCard } from "@/components/diner/DinerSetupCard";
+import { DinerErrorState } from "@/components/diner/DinerErrorState";
+import { DinerOrderExperience } from "@/components/diner/DinerOrderExperience";
+import { getDinerEntryState } from "@/lib/diner";
+import { dinerTableParamsSchema } from "@/lib/validations/diner";
 
 type DinerOrderPageProps = {
   params: Promise<{
@@ -7,15 +10,29 @@ type DinerOrderPageProps = {
 };
 
 export default async function DinerOrderPage({ params }: DinerOrderPageProps) {
-  const { tableId } = await params;
+  const parsedParams = dinerTableParamsSchema.safeParse(await params);
 
-  return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-10 lg:px-10">
-      <DinerSetupCard
-        tableId={tableId}
-        title="Mi pedido"
-        description="Esta pantalla queda lista para mostrar el pedido compartido de la mesa con polling cada 5 segundos y botón visible de actualización."
-      />
-    </main>
-  );
+  if (!parsedParams.success) {
+    return (
+      <DinerErrorState message="La mesa no existe o el QR no es válido." />
+    );
+  }
+
+  try {
+    const entryState = await getDinerEntryState(parsedParams.data.tableId);
+
+    if ("error" in entryState && entryState.error) {
+      return <DinerErrorState message={entryState.error.message} />;
+    }
+
+    return (
+      <main className="bg-muted/30">
+        <DinerOrderExperience table={entryState.table} />
+      </main>
+    );
+  } catch {
+    return (
+      <DinerErrorState message="No pudimos cargar el pedido de la mesa en este momento." />
+    );
+  }
 }

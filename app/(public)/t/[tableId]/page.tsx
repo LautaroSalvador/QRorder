@@ -1,4 +1,7 @@
-import { DinerSetupCard } from "@/components/diner/DinerSetupCard";
+import { DinerErrorState } from "@/components/diner/DinerErrorState";
+import { DinerMenuExperience } from "@/components/diner/DinerMenuExperience";
+import { getDinerEntryState, getPublishedMenu } from "@/lib/diner";
+import { dinerTableParamsSchema } from "@/lib/validations/diner";
 
 type DinerMenuPageProps = {
   params: Promise<{
@@ -7,15 +10,31 @@ type DinerMenuPageProps = {
 };
 
 export default async function DinerMenuPage({ params }: DinerMenuPageProps) {
-  const { tableId } = await params;
+  const parsedParams = dinerTableParamsSchema.safeParse(await params);
 
-  return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-10 lg:px-10">
-      <DinerSetupCard
-        tableId={tableId}
-        title="Menú de mesa"
-        description="La ruta pública del QR ya existe. En Fase 2 se conecta con la apertura automática de sesión, el menú y el carrito colaborativo."
-      />
-    </main>
-  );
+  if (!parsedParams.success) {
+    return (
+      <DinerErrorState message="La mesa no existe o el QR no es válido." />
+    );
+  }
+
+  try {
+    const entryState = await getDinerEntryState(parsedParams.data.tableId);
+
+    if ("error" in entryState && entryState.error) {
+      return <DinerErrorState message={entryState.error.message} />;
+    }
+
+    const categories = await getPublishedMenu();
+
+    return (
+      <main className="bg-muted/30">
+        <DinerMenuExperience categories={categories} table={entryState.table} />
+      </main>
+    );
+  } catch {
+    return (
+      <DinerErrorState message="No pudimos cargar el menú de la mesa en este momento." />
+    );
+  }
 }
