@@ -15,3 +15,38 @@ Creating turbopack project { dir: 'C:\\Users\\catal\\Dropbox\\QR-APP', testMode:
  ✓ Compiled / in 3.8s
  GET / 200 in 4407ms
  GET / 200 in 207ms
+ GET / 200 in 317ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 579ms
+ GET /favicon.ico?favicon.1450c6f5.ico 200 in 1006ms
+ ○ Compiling /staff/login ...
+ ✓ Compiled /staff/login in 713ms
+ GET /staff/login 200 in 1128ms
+ GET /staff/login?error=Email+o+contrase%C3%B1a+inv%C3%A1lidos. 200 in 424ms
+ POST /staff/login 303 in 1374ms
+ GET /staff/login?error=Email+o+contrase%C3%B1a+inv%C3%A1lidos. 200 in 406ms
+ GET /staff/login?error=Email+o+contrase%C3%B1a+inv%C3%A1lidos. 200 in 284ms
+ ○ Compiling /staff/cashier ...
+ ✓ Compiled /staff/cashier in 1185ms
+ POST /staff/cashier 200 in 170ms
+ GET /staff/cashier 200 in 2148ms
+ POST /staff/login?error=Email%20o%20contrase%C3%B1a%20inv%C3%A1lidos. 303 in 3244ms
+ ○ Compiling /api/staff/tables ...
+ ✓ Compiled /api/staff/tables in 1232ms
+ GET /api/staff/tables 200 in 3281ms
+ ○ Compiling /staff/admin/tables ...
+ ✓ Compiled /staff/admin/tables in 1060ms
+ GET /staff/admin/tables 200 in 2278ms
+ ✓ Compiled /api/staff/admin/tables in 392ms
+ GET /api/staff/admin/tables 200 in 1455ms
+ GET /api/staff/tables 200 in 1831ms
+ ○ Compiling /api/diner/order ...
+ ✓ Compiled /api/diner/order in 1581ms
+ GET /api/diner/order 200 in 1722ms
+ GET /t/2c0ce7c2-a0e8-48f4-ae18-2a92e6c2d5d8 200 in 3191ms
+ ✓ Compiled /api/diner/session in 265ms
+ POST /api/diner/session 200 in 1751ms
+ GET /api/diner/order 200 in 1181ms
+ GET /api/diner/order 200 in 1628ms
+ GET /api/diner/order 200 in 1364ms
+ GET /api/diner/order 200 in 1231ms
