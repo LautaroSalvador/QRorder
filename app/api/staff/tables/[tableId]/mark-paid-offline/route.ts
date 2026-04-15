@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { errorResponse, getErrorMessage } from "@/lib/api-response";
 import { requireStaffApiSession } from "@/lib/auth/staff-api";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { recordIdParamsSchema } from "@/lib/validations/admin";
 
 type Params = { params: Promise<{ tableId: string }> };
 
@@ -13,7 +14,15 @@ export async function POST(_request: NextRequest, { params }: Params) {
     return auth.response;
   }
 
-  const { tableId } = await params;
+  const parsedParams = recordIdParamsSchema.safeParse({
+    id: (await params).tableId,
+  });
+
+  if (!parsedParams.success) {
+    return errorResponse("INVALID_INPUT", parsedParams.error.message, 400);
+  }
+
+  const tableId = parsedParams.data.id;
   const admin = supabaseAdmin();
 
   // Verify table

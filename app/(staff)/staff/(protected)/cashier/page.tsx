@@ -6,18 +6,18 @@ export const metadata = {
 };
 
 export default async function CashierPage() {
-  await requireStaffSession();
+  const session = await requireStaffSession();
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Caja</h1>
         <p className="text-sm text-muted-foreground">
-          Estado del salón en tiempo real. Hacé click en una mesa para ver el detalle.
+          Estado del salon en tiempo real. Hace click en una mesa para ver el detalle.
         </p>
       </div>
 
-      <CashierView />
+      <CashierView canEditLayout={session.profile.role === "admin"} />
     </div>
   );
 }

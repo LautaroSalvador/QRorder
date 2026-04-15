@@ -21,6 +21,7 @@ type TableRow = Database["public"]["Tables"]["tables"]["Row"];
 type TableSessionRow = Database["public"]["Tables"]["table_sessions"]["Row"];
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
 type MenuCategoryRow = Database["public"]["Tables"]["menu_categories"]["Row"];
+type TableSessionStatus = Database["public"]["Enums"]["table_session_status"];
 
 function normalizeTable(table: Pick<TableRow, "id" | "name" | "number" | "status">) {
   return dinerTableSchema.parse({
@@ -270,10 +271,18 @@ export async function setDinerCookie(input: {
   return token;
 }
 
-export async function getDinerOrderContext(sessionId: string, tableId: string) {
+export async function getDinerOrderContext(
+  sessionId: string,
+  tableId: string,
+  allowedStatuses: TableSessionStatus[] = ["open"],
+) {
   const tableSession = await getSessionById(sessionId);
 
-  if (!tableSession || tableSession.table_id !== tableId || tableSession.status !== "open") {
+  if (
+    !tableSession ||
+    tableSession.table_id !== tableId ||
+    !allowedStatuses.includes(tableSession.status)
+  ) {
     return null;
   }
 
@@ -347,7 +356,11 @@ export async function recalculateOrderTotals(orderId: string) {
 }
 
 export async function getDinerOrder(sessionId: string, tableId: string) {
-  const context = await getDinerOrderContext(sessionId, tableId);
+  const context = await getDinerOrderContext(sessionId, tableId, [
+    "open",
+    "awaiting_payment",
+    "paid",
+  ]);
 
   if (!context) {
     return null;

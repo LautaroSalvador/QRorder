@@ -15,11 +15,11 @@ export const categorySchema = z.object({
 });
 
 export const createCategorySchema = z.object({
-  name: z.string().trim().min(1, "Ingresá un nombre."),
+  name: z.string().trim().min(1, "Ingresa un nombre."),
   preparationArea: preparationAreaSchema,
   sortOrder: z.coerce
     .number()
-    .int("El orden debe ser un número entero.")
+    .int("El orden debe ser un numero entero.")
     .min(0, "El orden no puede ser negativo."),
 });
 
@@ -46,13 +46,13 @@ export const menuItemSchema = z.object({
 });
 
 export const createMenuItemSchema = z.object({
-  name: z.string().trim().min(1, "Ingresá un nombre."),
-  description: z.string().trim().min(1, "Ingresá una descripción."),
+  name: z.string().trim().min(1, "Ingresa un nombre."),
+  description: z.string().trim().min(1, "Ingresa una descripcion."),
   price: z.coerce
     .number()
     .positive("El precio debe ser mayor a cero.")
     .max(999999, "El precio es demasiado alto."),
-  categoryId: z.string().uuid("Seleccioná una categoría válida."),
+  categoryId: z.string().uuid("Selecciona una categoria valida."),
   available: z.boolean(),
 });
 
@@ -71,9 +71,9 @@ export const tableSchema = z.object({
 export const createTableSchema = z.object({
   number: z.coerce
     .number()
-    .int("El número debe ser entero.")
-    .positive("El número debe ser mayor a cero."),
-  name: z.string().trim().min(1, "Ingresá un nombre."),
+    .int("El numero debe ser entero.")
+    .positive("El numero debe ser mayor a cero."),
+  name: z.string().trim().min(1, "Ingresa un nombre."),
   capacity: z.coerce
     .number()
     .int("La capacidad debe ser entera.")
@@ -82,6 +82,17 @@ export const createTableSchema = z.object({
 });
 
 export const updateTableSchema = createTableSchema;
+
+export const tablePositionSchema = z.object({
+  tableId: z.string().uuid("La mesa no es valida."),
+  posX: z.number().finite("La posicion horizontal no es valida.").min(0),
+  posY: z.number().finite("La posicion vertical no es valida.").min(0),
+});
+
+export const updateTablePositionsSchema = z.union([
+  tablePositionSchema,
+  z.array(tablePositionSchema).min(1, "Manda al menos una mesa."),
+]);
 
 export const staffUserSchema = z.object({
   id: z.string().uuid(),
@@ -95,8 +106,8 @@ export const staffUserSchema = z.object({
 });
 
 export const createStaffUserSchema = z.object({
-  email: z.string().trim().email("Ingresá un email válido."),
-  fullName: z.string().trim().min(1, "Ingresá un nombre."),
+  email: z.string().trim().email("Ingresa un email valido."),
+  fullName: z.string().trim().min(1, "Ingresa un nombre."),
   role: staffRoleSchema,
 });
 
@@ -106,7 +117,7 @@ export const updateStaffUserSchema = z.object({
 });
 
 export const recordIdParamsSchema = z.object({
-  id: z.string().uuid("El identificador no es válido."),
+  id: z.string().uuid("El identificador no es valido."),
 });
 
 export const emptyQuerySchema = z.object({});

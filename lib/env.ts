@@ -19,8 +19,15 @@ const cryptoEnvSchema = z.object({
 
 const appEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url(),
+  MP_ACCESS_TOKEN: z.string().min(1).optional(),
   MP_WEBHOOK_SECRET: z.string().min(1).optional(),
   SENTRY_DSN: z.string().optional(),
+});
+
+const mercadoPagoEnvSchema = z.object({
+  MP_ACCESS_TOKEN: z.string().min(1),
+  MP_WEBHOOK_SECRET: z.string().min(1).optional(),
+  NEXT_PUBLIC_APP_URL: z.string().url(),
 });
 
 function parseEnv<T extends z.ZodTypeAny>(schema: T, label: string): z.infer<T> {
@@ -51,4 +58,8 @@ export function getCryptoEnv() {
 
 export function getAppEnv() {
   return parseEnv(appEnvSchema, "Entorno de aplicación");
+}
+
+export function getMercadoPagoEnv() {
+  return parseEnv(mercadoPagoEnvSchema, "Entorno de Mercado Pago");
 }

@@ -46,6 +46,14 @@ export const cashierTablesResponseSchema = z.object({
 export type CashierTable = z.infer<typeof cashierTableSchema>;
 export type TableStatus = z.infer<typeof tableStatusSchema>;
 
+export const updateTablePositionSchema = z.object({
+  tableId: z.string().uuid("La mesa no es valida."),
+  posX: z.number().finite().min(0),
+  posY: z.number().finite().min(0),
+});
+
+export type UpdateTablePositionInput = z.infer<typeof updateTablePositionSchema>;
+
 // ─── Table detail ─────────────────────────────────────────────────────────────
 
 export const cashierOrderItemSchema = z.object({

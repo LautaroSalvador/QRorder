@@ -1,20 +1,33 @@
-import { DinerSetupCard } from "@/components/diner/DinerSetupCard";
+import { DinerErrorState } from "@/components/diner/DinerErrorState";
+import { DinerPaymentExperience } from "@/components/diner/DinerPaymentExperience";
+import { dinerTableParamsSchema } from "@/lib/validations/diner";
 
 type DinerPayPageProps = {
   params: Promise<{
     tableId: string;
   }>;
+  searchParams: Promise<{
+    status?: string;
+  }>;
 };
 
-export default async function DinerPayPage({ params }: DinerPayPageProps) {
-  const { tableId } = await params;
+export default async function DinerPayPage({
+  params,
+  searchParams,
+}: DinerPayPageProps) {
+  const parsedParams = dinerTableParamsSchema.safeParse(await params);
+
+  if (!parsedParams.success) {
+    return <DinerErrorState message="La mesa no existe o el QR no es válido." />;
+  }
+
+  const resolvedSearchParams = await searchParams;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-10 lg:px-10">
-      <DinerSetupCard
-        tableId={tableId}
-        title="Pago de la cuenta"
-        description="La estructura ya contempla propina configurable y Checkout Pro. El flujo real se implementa en la Fase 5."
+    <main className="bg-muted/30">
+      <DinerPaymentExperience
+        returnStatus={resolvedSearchParams.status ?? null}
+        tableId={parsedParams.data.tableId}
       />
     </main>
   );

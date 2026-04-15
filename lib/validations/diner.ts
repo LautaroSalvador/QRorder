@@ -41,6 +41,17 @@ export const dinerItemParamsSchema = z.object({
   itemId: z.string().uuid("El ítem no es válido."),
 });
 
+export const dinerPaymentCheckoutBodySchema = z.object({
+  tip: z.coerce
+    .number()
+    .min(0, "La propina no puede ser negativa.")
+    .max(100, "La propina no puede superar el 100%."),
+});
+
+export const dinerPaymentCheckoutResponseSchema = z.object({
+  checkoutUrl: z.string().url(),
+});
+
 export const dinerMenuItemSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
@@ -104,3 +115,6 @@ export const dinerOrderResponseSchema = z.object({
 
 export type DinerMenuCategory = z.infer<typeof dinerMenuCategorySchema>;
 export type DinerOrderResponse = z.infer<typeof dinerOrderResponseSchema>;
+export type DinerPaymentCheckoutResponse = z.infer<
+  typeof dinerPaymentCheckoutResponseSchema
+>;

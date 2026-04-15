@@ -14,14 +14,13 @@ import {
   type CashierTable,
   type CashierTableDetail,
   type UpdateOrderItemInput,
+  type UpdateTablePositionInput,
 } from "@/lib/validations/cashier";
 
 export type { CashierTable, CashierTableDetail };
 
 const CASHIER_TABLES_KEY = ["cashier-tables"] as const;
 const tableDetailKey = (tableId: string) => ["cashier-table", tableId] as const;
-
-// ─── List all tables (polling) ────────────────────────────────────────────────
 
 export function useCashierTables() {
   return useQuery({
@@ -36,7 +35,36 @@ export function useCashierTables() {
   });
 }
 
-// ─── Table detail (polling, only when drawer is open) ────────────────────────
+export function useUpdateTablePosition() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: UpdateTablePositionInput) => {
+      await fetchJson<unknown>("/api/staff/admin/tables/positions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+    },
+    onSuccess: async (_data, variables) => {
+      queryClient.setQueryData<CashierTable[] | undefined>(
+        CASHIER_TABLES_KEY,
+        (currentTables) =>
+          currentTables?.map((table) =>
+            table.id === variables.tableId
+              ? {
+                  ...table,
+                  pos_x: variables.posX,
+                  pos_y: variables.posY,
+                }
+              : table,
+          ),
+      );
+
+      await queryClient.invalidateQueries({ queryKey: CASHIER_TABLES_KEY });
+    },
+  });
+}
 
 export function useCashierTableDetail(tableId: string | null) {
   return useQuery({
@@ -51,8 +79,6 @@ export function useCashierTableDetail(tableId: string | null) {
     refetchOnWindowFocus: true,
   });
 }
-
-// ─── Add item to table ────────────────────────────────────────────────────────
 
 export function useAddTableItem(tableId: string) {
   const queryClient = useQueryClient();
@@ -72,8 +98,6 @@ export function useAddTableItem(tableId: string) {
   });
 }
 
-// ─── Update / cancel order item ──────────────────────────────────────────────
-
 export function useUpdateOrderItem(tableId: string) {
   const queryClient = useQueryClient();
 
@@ -92,8 +116,6 @@ export function useUpdateOrderItem(tableId: string) {
   });
 }
 
-// ─── Close table ──────────────────────────────────────────────────────────────
-
 export function useCloseTable(tableId: string) {
   const queryClient = useQueryClient();
 
@@ -110,8 +132,6 @@ export function useCloseTable(tableId: string) {
   });
 }
 
-// ─── Mark paid offline ────────────────────────────────────────────────────────
-
 export function useMarkPaidOffline(tableId: string) {
   const queryClient = useQueryClient();
 
@@ -127,8 +147,6 @@ export function useMarkPaidOffline(tableId: string) {
     },
   });
 }
-
-// ─── Reset table ──────────────────────────────────────────────────────────────
 
 export function useResetTable(tableId: string) {
   const queryClient = useQueryClient();

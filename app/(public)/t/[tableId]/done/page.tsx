@@ -1,4 +1,6 @@
-import { DinerSetupCard } from "@/components/diner/DinerSetupCard";
+import { DinerPaymentDone } from "@/components/diner/DinerPaymentDone";
+import { DinerErrorState } from "@/components/diner/DinerErrorState";
+import { dinerTableParamsSchema } from "@/lib/validations/diner";
 
 type DinerDonePageProps = {
   params: Promise<{
@@ -7,15 +9,11 @@ type DinerDonePageProps = {
 };
 
 export default async function DinerDonePage({ params }: DinerDonePageProps) {
-  const { tableId } = await params;
+  const parsedParams = dinerTableParamsSchema.safeParse(await params);
 
-  return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-10 lg:px-10">
-      <DinerSetupCard
-        tableId={tableId}
-        title="Comprobante"
-        description="La pantalla final ya tiene su ruta reservada para mostrar el resultado del pago y cerrar la sesión de mesa."
-      />
-    </main>
-  );
+  if (!parsedParams.success) {
+    return <DinerErrorState message="La mesa no existe o el QR no es válido." />;
+  }
+
+  return <DinerPaymentDone tableId={parsedParams.data.tableId} />;
 }
