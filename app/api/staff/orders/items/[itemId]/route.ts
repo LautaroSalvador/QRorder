@@ -7,6 +7,7 @@ import {
 } from "@/lib/api-response";
 import { requireStaffApiSession } from "@/lib/auth/staff-api";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import type { Database } from "@/lib/supabase/database.types";
 import { updateOrderItemBodySchema } from "@/lib/validations/cashier";
 
 type Params = { params: Promise<{ itemId: string }> };
@@ -74,7 +75,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const prevStatus = item.status;
 
   // Build update payload
-  const updatePayload: Record<string, unknown> = {};
+  const updatePayload: Database["public"]["Tables"]["order_items"]["Update"] = {};
   if (qty !== undefined) updatePayload.qty = qty;
   if (notes !== undefined) updatePayload.notes = notes;
   if (status !== undefined) updatePayload.status = status;

@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, QrCode, Trash2 } from "lucide-react";
 import { useState, useTransition, type FormEvent } from "react";
 import type { z } from "zod";
 
+import { TableQRModal } from "@/components/admin/TableQRModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,10 @@ export function TablesManager() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
+  const [qrTable, setQrTable] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [isPending, startTransition] = useTransition();
   const { data, isLoading, error } = useQuery({
     queryKey: tablesQueryKey,
@@ -284,6 +289,19 @@ export function TablesManager() {
                           <Button
                             type="button"
                             variant="outline"
+                            onClick={() =>
+                              setQrTable({
+                                id: table.id,
+                                name: table.name,
+                              })
+                            }
+                          >
+                            <QrCode className="size-4" />
+                            Ver QR
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
                             onClick={() => setEditingId(table.id)}
                           >
                             <Pencil className="size-4" />
@@ -307,6 +325,13 @@ export function TablesManager() {
           </div>
         </CardContent>
       </Card>
+
+      <TableQRModal
+        tableId={qrTable?.id ?? ""}
+        tableName={qrTable?.name ?? ""}
+        open={qrTable !== null}
+        onClose={() => setQrTable(null)}
+      />
     </section>
   );
 }

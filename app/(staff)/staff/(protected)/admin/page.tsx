@@ -1,6 +1,14 @@
 import Link from "next/link";
 
-import { LayoutPanelTop, Settings, UtensilsCrossed, Users } from "lucide-react";
+import {
+  ChefHat,
+  GlassWater,
+  LayoutPanelTop,
+  MonitorCheck,
+  Settings,
+  UtensilsCrossed,
+  Users,
+} from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import {
@@ -26,6 +34,24 @@ const adminCards = [
     description: "Alta, edición y baja del salón base.",
   },
   {
+    href: "/staff/cashier",
+    icon: MonitorCheck,
+    title: "Caja",
+    description: "Ver el estado de todas las mesas desde el salón.",
+  },
+  {
+    href: "/staff/kitchen",
+    icon: ChefHat,
+    title: "Cocina",
+    description: "Entrar a la cola de cocina y seguir los pedidos activos.",
+  },
+  {
+    href: "/staff/bar",
+    icon: GlassWater,
+    title: "Barra",
+    description: "Controlar bebidas pendientes, en preparación y listas.",
+  },
+  {
     href: "/staff/admin/users",
     icon: Users,
     title: "Usuarios staff",
@@ -45,8 +71,11 @@ export default async function AdminPage() {
   return (
     <AdminShell
       title="Panel administrativo"
-      description="Desde acá se administran menú, mesas, usuarios y configuración del restaurante."
+      description="Desde acá se administran menú, mesas, usuarios, configuración y el acceso a todas las áreas operativas."
       navItems={[
+        { href: "/staff/cashier", label: "Salón" },
+        { href: "/staff/kitchen", label: "Cocina" },
+        { href: "/staff/bar", label: "Barra" },
         { href: "/staff/admin/menu/categories", label: "Menú" },
         { href: "/staff/admin/tables", label: "Mesas" },
         { href: "/staff/admin/users", label: "Usuarios" },

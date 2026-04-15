@@ -5,7 +5,7 @@ export default async function BarPage() {
   await requireStaffSession();
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-6 py-10 lg:px-10">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Barra</h1>
         <p className="text-sm leading-6 text-muted-foreground">
@@ -13,6 +13,6 @@ export default async function BarPage() {
         </p>
       </div>
       <BarKanban />
-    </main>
+    </div>
   );
 }

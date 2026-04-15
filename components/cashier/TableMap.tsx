@@ -28,7 +28,10 @@ export function TableMap({ tables, onTableClick }: TableMapProps) {
     return (
       <div
         className="relative w-full overflow-auto rounded-2xl border border-border bg-muted/20"
-        style={{ minHeight: Math.max(maxY, 300) }}
+        style={{
+          minHeight: Math.max(maxY, 300),
+          minWidth: Math.max(maxX, 320),
+        }}
       >
         {tables.map((table) => (
           <div
