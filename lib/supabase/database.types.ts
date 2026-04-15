@@ -357,6 +357,75 @@ export type Database = {
         };
         Relationships: [];
       };
+      audit_log: {
+        Row: {
+          actor_id: string | null;
+          actor_type: "diner" | "staff" | "system";
+          action: string;
+          created_at: string;
+          entity: string;
+          entity_id: string | null;
+          id: string;
+          payload: Record<string, unknown>;
+        };
+        Insert: {
+          actor_id?: string | null;
+          actor_type: "diner" | "staff" | "system";
+          action: string;
+          created_at?: string;
+          entity: string;
+          entity_id?: string | null;
+          id?: string;
+          payload?: Record<string, unknown>;
+        };
+        Update: {
+          actor_id?: string | null;
+          actor_type?: "diner" | "staff" | "system";
+          action?: string;
+          created_at?: string;
+          entity?: string;
+          entity_id?: string | null;
+          id?: string;
+          payload?: Record<string, unknown>;
+        };
+        Relationships: [];
+      };
+      payments: {
+        Row: {
+          amount: number;
+          created_at: string;
+          external_id: string | null;
+          id: string;
+          provider: "mercadopago" | "offline";
+          raw_payload: Record<string, unknown>;
+          session_id: string;
+          status: "pending" | "approved" | "rejected" | "cancelled";
+          updated_at: string;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string;
+          external_id?: string | null;
+          id?: string;
+          provider: "mercadopago" | "offline";
+          raw_payload?: Record<string, unknown>;
+          session_id: string;
+          status?: "pending" | "approved" | "rejected" | "cancelled";
+          updated_at?: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          external_id?: string | null;
+          id?: string;
+          provider?: "mercadopago" | "offline";
+          raw_payload?: Record<string, unknown>;
+          session_id?: string;
+          status?: "pending" | "approved" | "rejected" | "cancelled";
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

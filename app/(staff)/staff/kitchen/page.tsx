@@ -1,14 +1,23 @@
-import { KitchenQueuePlaceholder } from "@/components/kitchen/KitchenQueuePlaceholder";
+import { KitchenKanban } from "@/components/kitchen/KitchenKanban";
 import { requireStaffSession } from "@/lib/auth/staff";
+
+export const metadata = {
+  title: "Cola de cocina · MesaQR",
+};
 
 export default async function KitchenPage() {
   await requireStaffSession();
 
   return (
-    <KitchenQueuePlaceholder
-      area="cocina"
-      title="Cola de cocina"
-      description="La ruta protegida ya existe y queda lista para recibir la cola de ítems con polling de 5 segundos."
-    />
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Cola de cocina</h1>
+        <p className="text-sm text-muted-foreground">
+          Ítems pendientes, en preparación y listos del área de cocina.
+        </p>
+      </div>
+
+      <KitchenKanban />
+    </div>
   );
 }
