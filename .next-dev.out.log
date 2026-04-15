@@ -50,3 +50,5 @@ Creating turbopack project { dir: 'C:\\Users\\catal\\Dropbox\\QR-APP', testMode:
  GET /api/diner/order 200 in 1628ms
  GET /api/diner/order 200 in 1364ms
  GET /api/diner/order 200 in 1231ms
+ GET /api/diner/order 200 in 1454ms
+ GET /api/diner/order 200 in 1338ms
