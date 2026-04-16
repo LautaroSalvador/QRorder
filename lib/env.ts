@@ -25,7 +25,6 @@ const appEnvSchema = z.object({
 });
 
 const mercadoPagoEnvSchema = z.object({
-  MP_ACCESS_TOKEN: z.string().min(1),
   MP_WEBHOOK_SECRET: z.string().min(1).optional(),
   NEXT_PUBLIC_APP_URL: z.string().url(),
 });

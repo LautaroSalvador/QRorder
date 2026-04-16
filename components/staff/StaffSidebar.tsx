@@ -1,28 +1,44 @@
-import type { StaffRole } from "@/lib/staff";
-
-import { StaffSignOutButton } from "@/components/staff/StaffSignOutButton";
 import { StaffSidebarNav } from "@/components/staff/StaffSidebarNav";
+import { StaffSignOutButton } from "@/components/staff/StaffSignOutButton";
+import type { StaffProfile } from "@/lib/auth/staff";
+import { UserRound } from "lucide-react";
 
 type StaffSidebarProps = {
-  role: StaffRole;
+  profile: StaffProfile;
 };
 
-export function StaffSidebar({ role }: StaffSidebarProps) {
+export function StaffSidebar({ profile }: StaffSidebarProps) {
   return (
-    <aside className="hidden md:block md:w-60 md:flex-none">
-      <div className="fixed inset-y-0 left-0 flex w-60 flex-col border-r border-border/80 bg-card px-4 py-6">
-        <div className="space-y-1 px-2">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
-            Staff
+    <aside className="hidden md:block md:w-64 md:flex-none">
+      <div className="fixed inset-y-0 left-0 flex w-64 flex-col border-r border-border bg-card px-0 py-6">
+        <div className="space-y-1 px-6">
+          <p className="text-xl font-semibold tracking-tight text-primary">
+            The Culinary Tactile
           </p>
-          <p className="text-2xl font-semibold tracking-tight">MesaQR</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/70">
+            Admin Terminal
+          </p>
         </div>
 
         <div className="mt-8 flex-1">
-          <StaffSidebarNav role={role} />
+          <StaffSidebarNav role={profile.role} />
         </div>
 
-        <StaffSignOutButton className="w-full justify-start" />
+        <div className="px-6 mt-auto">
+          <StaffSignOutButton className="w-full flex items-center justify-start gap-3 h-14 rounded-xl px-3 hover:bg-secondary border-none shadow-none font-normal">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white">
+              <UserRound className="size-5" />
+            </div>
+            <div className="flex flex-col items-start overflow-hidden text-left">
+              <span className="text-sm font-semibold text-foreground truncate w-full">
+                {profile.full_name}
+              </span>
+              <span className="text-xs text-muted-foreground truncate w-full">
+                {profile.role === "admin" ? "General Manager" : "Shift Supervisor"}
+              </span>
+            </div>
+          </StaffSignOutButton>
+        </div>
       </div>
     </aside>
   );

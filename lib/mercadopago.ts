@@ -51,11 +51,27 @@ function parseSignatureHeader(signatureHeader: string | null): SignatureParts | 
   return { ts, v1 };
 }
 
-export function createMercadoPagoClient() {
-  const { MP_ACCESS_TOKEN } = getMercadoPagoEnv();
+import { decryptText } from "@/lib/crypto";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+
+export async function createMercadoPagoClient() {
+  const admin = supabaseAdmin();
+  const { data: rawData } = await admin
+    .from("restaurant_config")
+    .select("mp_access_token")
+    .eq("id", 1)
+    .maybeSingle();
+
+  const data = rawData as unknown as { mp_access_token: string | null };
+
+  if (!data?.mp_access_token) {
+    throw new Error("El restaurante no configuró Mercado Pago todavía.");
+  }
+
+  const accessToken = decryptText(data.mp_access_token);
 
   return new MercadoPagoConfig({
-    accessToken: MP_ACCESS_TOKEN,
+    accessToken,
   });
 }
 

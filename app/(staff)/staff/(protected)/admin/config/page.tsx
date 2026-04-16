@@ -1,39 +1,30 @@
+import { AdminConfigForm } from "@/components/admin/AdminConfigForm";
 import { AdminShell } from "@/components/admin/AdminShell";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { requireAdminStaffSession } from "@/lib/auth/staff";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export default async function AdminConfigPage() {
   await requireAdminStaffSession();
 
+  const admin = supabaseAdmin();
+  const { data: rawData } = await admin
+    .from("restaurant_config")
+    .select("mp_access_token, mp_public_key")
+    .eq("id", 1)
+    .maybeSingle();
+
+  const config = rawData as unknown as { mp_access_token: string | null; mp_public_key: string | null };
+
   return (
     <AdminShell
-      title="Configuración"
-      description="Esta ruta queda reservada para credenciales de Mercado Pago, propinas y ajustes del restaurante."
-      navItems={[
-        { href: "/staff/admin/menu/categories", label: "Menú" },
-        { href: "/staff/admin/tables", label: "Mesas" },
-        { href: "/staff/admin/users", label: "Usuarios" },
-        { href: "/staff/admin/config", label: "Config" },
-      ]}
+      title="Configuración General"
+      description="Manage your restaurant identity, payment gateways, and operational flow."
       activeHref="/staff/admin/config"
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>Próximo paso</CardTitle>
-          <CardDescription>
-            La configuración administrativa sigue en la próxima iteración del backbone.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Ya quedó lista la base de roles, menú, mesas y usuarios para seguir con la Fase 1.
-        </CardContent>
-      </Card>
+      <AdminConfigForm
+        hasAccessToken={!!config?.mp_access_token}
+        mpPublicKey={config?.mp_public_key ?? null}
+      />
     </AdminShell>
   );
 }
