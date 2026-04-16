@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 type StaffSignOutButtonProps = {
   className?: string;
   variant?: "default" | "outline" | "secondary" | "ghost" | "destructive";
+  children?: React.ReactNode;
 };
 
 async function signOutAction() {
@@ -22,12 +23,17 @@ async function signOutAction() {
 export function StaffSignOutButton({
   className,
   variant = "outline",
+  children,
 }: StaffSignOutButtonProps) {
   return (
     <form action={signOutAction}>
       <Button type="submit" variant={variant} className={className}>
-        <LogOut className="size-4" />
-        Cerrar sesión
+        {children || (
+          <>
+            <LogOut className="size-4" />
+            Cerrar sesión
+          </>
+        )}
       </Button>
     </form>
   );

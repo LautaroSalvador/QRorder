@@ -7,13 +7,8 @@ export default async function AdminTablesPage() {
 
   return (
     <AdminShell
-      title="Mesas"
-      description="Alta, edición y baja de mesas del salón. El layout visual queda para la Fase 4."
-      navItems={[
-        { href: "/staff/admin/menu/categories", label: "Menú" },
-        { href: "/staff/admin/tables", label: "Mesas" },
-        { href: "/staff/admin/users", label: "Usuarios" },
-      ]}
+      title="Plano de Sala"
+      description="Gestiona la disposición, capacidad y códigos QR de tus mesas."
       activeHref="/staff/admin/tables"
     >
       <TablesManager />

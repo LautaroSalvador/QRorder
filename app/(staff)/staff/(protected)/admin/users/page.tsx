@@ -7,13 +7,8 @@ export default async function AdminUsersPage() {
 
   return (
     <AdminShell
-      title="Usuarios staff"
-      description="Invitá usuarios, ajustá roles y desactivá accesos del equipo."
-      navItems={[
-        { href: "/staff/admin/menu/categories", label: "Menú" },
-        { href: "/staff/admin/tables", label: "Mesas" },
-        { href: "/staff/admin/users", label: "Usuarios" },
-      ]}
+      title="Gestión de Personal"
+      description='"The art of hospitality begins with the right team."'
       activeHref="/staff/admin/users"
     >
       <StaffUsersManager />

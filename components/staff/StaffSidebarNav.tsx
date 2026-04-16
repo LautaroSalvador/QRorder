@@ -25,13 +25,16 @@ export function StaffSidebarNav({ role }: StaffSidebarNavProps) {
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
+              "flex items-center gap-4 px-6 py-3 text-[14.5px] font-medium text-muted-foreground transition-colors hover:bg-secondary/50 hover:text-foreground",
               isActive &&
-                "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
+                "text-primary hover:text-primary relative font-semibold bg-primary/5",
             )}
           >
             <Icon className="size-4" />
             <span>{label}</span>
+            {isActive && (
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-primary rounded-l-md" />
+            )}
           </Link>
         );
       })}

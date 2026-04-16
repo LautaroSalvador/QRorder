@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = supabaseAdmin();
-  const paymentClient = new Payment(createMercadoPagoClient());
+  const paymentClient = new Payment(await createMercadoPagoClient());
 
   try {
     const payment = await paymentClient.get({ id: paymentId });

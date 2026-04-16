@@ -121,3 +121,8 @@ export const recordIdParamsSchema = z.object({
 });
 
 export const emptyQuerySchema = z.object({});
+
+export const adminConfigUpdateSchema = z.object({
+  mpAccessToken: z.string().optional(),
+  mpPublicKey: z.string().optional(),
+});

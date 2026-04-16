@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
       "/api/webhooks/mercadopago",
       NEXT_PUBLIC_APP_URL,
     ).toString();
-    const preferenceClient = new Preference(createMercadoPagoClient());
+    const preferenceClient = new Preference(await createMercadoPagoClient());
 
     const { error: orderUpdateError } = await admin
       .from("orders")
