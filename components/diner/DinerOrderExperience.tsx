@@ -80,7 +80,7 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
       </header>
 
       {/* Live Order Section */}
-      <section className="px-6 mt-4 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-100">
+      <section className="px-6 mt-4">
          <div className="flex justify-between items-baseline mb-4">
             <h2 className="text-2xl font-bold tracking-tight text-foreground">Live Order</h2>
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Confirmed Items</span>
@@ -104,7 +104,7 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
                         {item.notes && <p className="text-xs text-muted-foreground italic leading-snug">{item.notes}</p>}
                         <div className="mt-1 flex items-center gap-1">
                            <span className={`text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 ${status.color}`}>
-                              {item.status === 'delivered' && <div className="size-1.5 rounded-full bg-green-600"></div>}
+                              {item.status === 'delivered' && <span className="size-1.5 rounded-full bg-green-600"></span>}
                               {item.status === 'pending' && <UtensilsCrossed className="size-2.5" />}
                               {status.label}
                            </span>
@@ -117,7 +117,7 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
       </section>
 
       {/* Cart Section */}
-      <section className="px-6 mt-10 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-200">
+      <section className="px-6 mt-10">
          <div className="flex justify-between items-baseline mb-4">
             <h2 className="text-2xl font-bold tracking-tight text-foreground">In Your Cart</h2>
             <span className="text-[10px] font-bold text-[#c14418] uppercase tracking-widest bg-orange-100 px-2.5 py-1 rounded-full">Draft</span>
@@ -147,7 +147,7 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
       </section>
 
       {/* Totals Section */}
-      <section className="px-6 mt-10 mb-8 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-300">
+      <section className="px-6 mt-10 mb-8">
          <div className="flex justify-between items-center text-[13px] text-muted-foreground font-medium mb-3">
             <span>Subtotal ({liveItems.length} confirmed, {cartItems.length} cart)</span>
             <span className="font-bold text-foreground">${subtotal.toFixed(2)}</span>
@@ -164,8 +164,8 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
       </section>
 
       {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-4 bg-card shadow-[0_-2px_20px_rgba(0,0,0,0.06)] rounded-[1.75rem] p-3 animate-in slide-in-from-bottom-12 duration-500">
-         <Link href={`/t/${table.id}/payment`} className="flex-none">
+      <div className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-4 bg-card shadow-[0_-2px_20px_rgba(0,0,0,0.06)] rounded-[1.75rem] p-3">
+         <Link href={`/t/${table.id}/pay`} className="flex-none">
            <div className="bg-secondary/60 hover:bg-secondary/90 transition-colors h-14 w-28 rounded-2xl flex items-center justify-center gap-2 text-foreground font-bold">
               <ReceiptText className="size-5" /> <span>Bill</span>
            </div>

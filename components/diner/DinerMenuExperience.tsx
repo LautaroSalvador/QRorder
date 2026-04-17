@@ -34,6 +34,7 @@ export function DinerMenuExperience({
   const [notes, setNotes] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isAddingItem, setIsAddingItem] = useState(false);
+  const [quickAddingId, setQuickAddingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (orderQuery.data) {
@@ -62,35 +63,61 @@ export function DinerMenuExperience({
   const subtotal = subtotalLive + subtotalCart;
   const isDialogActive = isItemDialogOpen && selectedItem !== null;
 
+  const selectedItemCategory = useMemo(() => {
+    if (!selectedItem) return null;
+    return categories.find(c => c.items.some(i => i.id === selectedItem.id));
+  }, [categories, selectedItem]);
+
+  const isDrink = useMemo(() => {
+    if (!selectedItemCategory) return false;
+    const name = selectedItemCategory.name.toLowerCase();
+    return name.includes("bebida") || name.includes("trago") || name.includes("cafetería") || name.includes("vino") || name.includes("cerveza");
+  }, [selectedItemCategory]);
+
+  async function performAddItem(menuItemId: string, finalQty: number, finalNotes: string) {
+    await fetchJson("/api/diner/order/items", {
+      body: JSON.stringify({
+        menuItemId,
+        notes: finalNotes,
+        qty: finalQty,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    });
+    await orderQuery.refetch();
+  }
+
   async function handleAddItem() {
-    if (!selectedItem) {
-      return;
-    }
+    if (!selectedItem) return;
 
     setIsAddingItem(true);
     setSubmitError(null);
 
     try {
-      await fetchJson("/api/diner/order/items", {
-        body: JSON.stringify({
-          menuItemId: selectedItem.id,
-          notes,
-          qty,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      });
-
+      await performAddItem(selectedItem.id, qty, notes);
       closeItemDialog();
-      await orderQuery.refetch();
     } catch (error) {
       setSubmitError(
         error instanceof Error ? error.message : "No pudimos agregar el ítem.",
       );
     } finally {
       setIsAddingItem(false);
+    }
+  }
+
+  async function handleQuickAdd(e: React.MouseEvent, item: DinerMenuCategory["items"][number]) {
+    e.stopPropagation();
+    if (!sessionData) return;
+    
+    setQuickAddingId(item.id);
+    try {
+      await performAddItem(item.id, 1, "");
+    } catch (error) {
+      alert("Error sumando ítem." + (error instanceof Error ? error.message : ""));
+    } finally {
+      setQuickAddingId(null);
     }
   }
 
@@ -101,7 +128,7 @@ export function DinerMenuExperience({
       <div className="absolute top-0 left-0 w-full h-[35vh] bg-gradient-to-b from-[#fbeadb]/40 to-transparent -z-10 pointer-events-none" />
 
       {/* Top section - Header */}
-      <header className="flex items-center justify-between px-6 pt-6 pb-2 sticky top-0 bg-background/80 backdrop-blur-xl z-20 border-b border-border/40">
+      <header className="flex items-center justify-between px-6 pt-6 pb-2 relative z-20">
         <div className="flex items-center gap-3">
           <div className="text-primary font-bold">
             <UtensilsCrossed className="size-6" />
@@ -112,6 +139,21 @@ export function DinerMenuExperience({
           Mesa {table.number}
         </div>
       </header>
+      
+      {/* Scrollable Categories Sticky Nav */}
+      <div className="sticky top-0 bg-background/90 backdrop-blur-xl z-20 border-b border-border/40 py-3 mt-2 shadow-sm">
+         <div className="flex px-5 overflow-x-auto gap-4 scrollbar-hide no-scrollbar items-center">
+            {categories.map((category) => (
+               <a 
+                  key={`nav-${category.id}`} 
+                  href={`#category-${category.id}`}
+                  className="whitespace-nowrap px-4 py-1.5 rounded-full border border-border/50 text-[13px] font-bold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-95"
+               >
+                  {category.name}
+               </a>
+            ))}
+         </div>
+      </div>
 
       {/* Welcome text */}
       <section className="px-6 mt-6 mb-2 flex items-center justify-between">
@@ -127,7 +169,7 @@ export function DinerMenuExperience({
          ) : null}
 
          {categories.map((category) => (
-            <section key={category.id} className="space-y-4">
+            <section key={category.id} id={`category-${category.id}`} className="space-y-4 pt-16 -mt-16">
                <div className="flex items-center gap-2 px-2">
                   <h3 className="text-xl font-bold tracking-tight text-foreground">{category.name}</h3>
                   <div className="flex-1 h-px bg-border/60 ml-4"></div>
@@ -156,9 +198,13 @@ export function DinerMenuExperience({
                               <p className="text-[13.5px] text-muted-foreground leading-snug line-clamp-2">{item.description}</p>
                            </div>
                            <div className="mt-4 flex items-center justify-between">
-                              <span className="text-[11px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-md flex items-center gap-1.5">
-                                 <Plus className="size-3" /> Añadir
-                              </span>
+                              <button 
+                                 onClick={(e) => handleQuickAdd(e, item)}
+                                 disabled={quickAddingId === item.id || !sessionData}
+                                 className="text-[11px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1.5 pt-1.5 rounded-md flex items-center gap-1.5 hover:bg-primary hover:text-white transition-colors"
+                              >
+                                 <Plus className="size-3" /> {quickAddingId === item.id ? "Añadiendo..." : "Añadir"}
+                              </button>
                            </div>
                         </div>
                      </div>
@@ -195,9 +241,9 @@ export function DinerMenuExperience({
             <div className="absolute inset-0 bg-background/60 backdrop-blur-sm transition-opacity" onClick={closeItemDialog} />
             
             {/* Modal */}
-            <div className="bg-card w-full max-w-md w-full rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10 animate-in slide-in-from-bottom-1/2 zoom-in-95 duration-300">
+            <div className="bg-card w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10 animate-in slide-in-from-bottom-1/2 zoom-in-95 duration-300">
                {/* Modal Header Image */}
-               <div className="w-full h-56 bg-secondary/30 relative">
+               <div className="w-full h-48 sm:h-56 bg-secondary/30 relative">
                   {selectedItem.imageUrl ? (
                      <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${selectedItem.imageUrl})` }} />
                   ) : (
@@ -225,19 +271,21 @@ export function DinerMenuExperience({
                   <hr className="border-border/50" />
 
                   {/* Options */}
-                  <div className="space-y-4">
-                     <div>
-                        <label className="text-[11px] font-bold tracking-widest uppercase text-foreground mb-2 block">Aclaraciones</label>
-                        <textarea 
-                           className="w-full bg-secondary/40 border-transparent rounded-xl p-4 text-[14px] min-h-[5rem] focus:ring-2 focus:ring-primary/20 outline-none resize-none"
-                           placeholder="Sin cebolla, aderezo extra, etc."
-                           value={notes}
-                           onChange={(e) => setNotes(e.target.value)}
-                           maxLength={200}
-                        />
-                     </div>
+                  <div className="space-y-6">
+                     {!isDrink && (
+                        <div>
+                           <label className="text-[11px] font-bold tracking-widest uppercase text-foreground mb-2 block">Aclaraciones</label>
+                           <textarea 
+                              className="w-full bg-secondary/40 border-transparent rounded-xl p-4 text-[14px] min-h-[5rem] focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+                              placeholder="Sin cebolla, aderezo extra, etc."
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              maxLength={200}
+                           />
+                        </div>
+                     )}
 
-                     <div className="flex items-center justify-between">
+                     <div className="flex items-center justify-between mt-2">
                         <label className="text-[11px] font-bold tracking-widest uppercase text-foreground">Cantidad</label>
                         <div className="flex items-center gap-4 bg-secondary/40 rounded-full p-1.5 px-2 shadow-inner">
                            <button onClick={() => setQty(Math.max(1, qty - 1))} className="size-8 rounded-full bg-background shadow-sm flex items-center justify-center hover:bg-secondary transition-colors text-foreground disabled:opacity-50" disabled={qty <= 1}>
@@ -257,7 +305,7 @@ export function DinerMenuExperience({
                   <button 
                      onClick={() => void handleAddItem()}
                      disabled={isAddingItem}
-                     className="mt-2 w-full bg-primary hover:bg-[#a83b14] active:scale-[0.98] transition-all h-14 rounded-[1.25rem] flex items-center justify-center gap-2 text-white font-bold text-[16px] shadow-lg shadow-primary/25"
+                     className="mt-6 w-full bg-primary hover:bg-[#a83b14] active:scale-[0.98] transition-all h-14 rounded-[1.25rem] flex items-center justify-center gap-2 text-white font-bold text-[16px] shadow-lg shadow-primary/25"
                   >
                      {isAddingItem ? "Agregando..." : `Añadir ${(selectedItem.price * qty).toFixed(2)}`}
                      {!isAddingItem && <Sparkles className="size-4 ml-1 opacity-70" />}

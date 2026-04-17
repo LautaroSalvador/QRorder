@@ -203,8 +203,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const preference = await preferenceClient.create({
-        body: {
-          auto_return: "approved",
+          auto_return: successUrl.startsWith("https") ? "approved" : undefined,
           back_urls: {
             failure: failureUrl,
             pending: pendingUrl,
