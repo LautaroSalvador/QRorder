@@ -57,7 +57,7 @@ export const dinerMenuItemSchema = z.object({
   name: z.string(),
   description: z.string(),
   price: z.number(),
-  imageUrl: z.string().url().nullable(),
+  imageUrl: z.string().nullable(),
 });
 
 export const dinerMenuCategorySchema = z.object({
