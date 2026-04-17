@@ -1,11 +1,10 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MailPlus, Pencil, Trash2, Shield, Calendar, CheckCircle2, XCircle, ArrowRightCircle, Clock, UserRound, Filter, Download, UserPlus, X } from "lucide-react";
+import { MailPlus, Pencil, Trash2, Shield, Calendar, CheckCircle2, XCircle, ArrowRightCircle, UserRound, Filter, Download, UserPlus, X } from "lucide-react";
 import { useState, useTransition, type FormEvent } from "react";
 import type { z } from "zod";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetchJson } from "@/lib/fetcher";
@@ -28,7 +27,7 @@ export function StaffUsersManager() {
   const [isAdding, setIsAdding] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [isPending, startTransition] = useTransition();
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: staffUsersQueryKey,
     queryFn: () => fetchJson<StaffUser[]>("/api/staff/admin/users"),
   });
@@ -128,7 +127,7 @@ export function StaffUsersManager() {
             }),
           });
           await queryClient.invalidateQueries({ queryKey: staffUsersQueryKey });
-        } catch (requestError) {
+        } catch {
           console.error("Failed to toggle status");
         }
       })();

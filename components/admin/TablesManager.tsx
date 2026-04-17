@@ -1,12 +1,11 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, QrCode, Trash2, X, Users, Edit3, Grid2X2, CheckCircle2, ChevronDown } from "lucide-react";
+import { Plus, QrCode, Trash2, X, Users, Edit3, Grid2X2, CheckCircle2, ChevronDown } from "lucide-react";
 import { useState, useTransition, type FormEvent } from "react";
 import type { z } from "zod";
 
 import { TableQRModal } from "@/components/admin/TableQRModal";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetchJson } from "@/lib/fetcher";

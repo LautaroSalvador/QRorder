@@ -2,7 +2,9 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { MercadoPagoConfig } from "mercadopago";
 
-import { getMercadoPagoEnv } from "@/lib/env";
+import { decryptText } from "@/lib/crypto";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import type { Database } from "@/lib/supabase/database.types";
 
 type MercadoPagoWebhookPayload = {
   action?: string;
@@ -21,6 +23,9 @@ type SignatureParts = {
   ts: string;
   v1: string;
 };
+
+type RestaurantConfigRow =
+  Database["public"]["Tables"]["restaurant_config"]["Row"];
 
 function parseSignatureHeader(signatureHeader: string | null): SignatureParts | null {
   if (!signatureHeader) {
@@ -51,24 +56,21 @@ function parseSignatureHeader(signatureHeader: string | null): SignatureParts | 
   return { ts, v1 };
 }
 
-import { decryptText } from "@/lib/crypto";
-import { supabaseAdmin } from "@/lib/supabase/admin";
-
 export async function createMercadoPagoClient() {
   const admin = supabaseAdmin();
-  const { data: rawData } = await admin
+  const { data } = await admin
     .from("restaurant_config")
     .select("mp_access_token")
     .eq("id", 1)
     .maybeSingle();
 
-  const data = rawData as unknown as { mp_access_token: string | null };
+  const config: Pick<RestaurantConfigRow, "mp_access_token"> | null = data;
 
-  if (!data?.mp_access_token) {
-    throw new Error("El restaurante no configuró Mercado Pago todavía.");
+  if (!config?.mp_access_token) {
+    throw new Error("El restaurante no configuro Mercado Pago todavia.");
   }
 
-  const accessToken = decryptText(data.mp_access_token);
+  const accessToken = decryptText(config.mp_access_token);
 
   return new MercadoPagoConfig({
     accessToken,

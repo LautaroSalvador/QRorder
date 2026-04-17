@@ -1,8 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { UtensilsCrossed, Edit2, Trash2, ReceiptText, ShoppingCart, RefreshCcw } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  Edit2,
+  ReceiptText,
+  RefreshCcw,
+  ShoppingCart,
+  Trash2,
+  UtensilsCrossed,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useDinerOrder } from "@/components/diner/useDinerOrder";
 import { useDinerSession } from "@/components/diner/useDinerSession";
@@ -16,20 +23,29 @@ type DinerOrderExperienceProps = {
 
 function statusLabel(status: string) {
   switch (status) {
-    case "cart": return { label: "DRAFT", color: "bg-orange-100 text-[#c14418]" };
-    case "pending": return { label: "PENDING", color: "bg-[#fbeadb] text-[#c14418]" };
-    case "accepted": return { label: "ACCEPTED", color: "bg-blue-100/50 text-blue-600" };
-    case "in_progress": return { label: "PREPARING", color: "bg-blue-100 text-blue-600" };
-    case "ready": return { label: "READY", color: "bg-green-100/50 text-green-700" };
-    case "delivered": return { label: "DELIVERED", color: "bg-green-100 text-green-700" };
-    case "unavailable": return { label: "UNAVAILABLE", color: "bg-red-100 text-red-600" };
-    case "cancelled": return { label: "CANCELLED", color: "bg-gray-100 text-gray-600" };
-    default: return { label: status.toUpperCase(), color: "bg-gray-100 text-gray-600" };
+    case "cart":
+      return { color: "bg-orange-100 text-[#c14418]", label: "BORRADOR" };
+    case "pending":
+      return { color: "bg-[#fbeadb] text-[#c14418]", label: "PENDIENTE" };
+    case "accepted":
+      return { color: "bg-blue-100/50 text-blue-600", label: "ACEPTADO" };
+    case "in_progress":
+      return { color: "bg-blue-100 text-blue-600", label: "EN PREPARACION" };
+    case "ready":
+      return { color: "bg-green-100/50 text-green-700", label: "LISTO" };
+    case "delivered":
+      return { color: "bg-green-100 text-green-700", label: "ENTREGADO" };
+    case "unavailable":
+      return { color: "bg-red-100 text-red-600", label: "NO DISPONIBLE" };
+    case "cancelled":
+      return { color: "bg-gray-100 text-gray-600", label: "CANCELADO" };
+    default:
+      return { color: "bg-gray-100 text-gray-600", label: status.toUpperCase() };
   }
 }
 
 export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
-  const { data: sessionData, isLoading: isSessionLoading } = useDinerSession(table.id);
+  const { data: sessionData } = useDinerSession(table.id);
   const orderQuery = useDinerOrder(Boolean(sessionData), table.id);
   const { items, setOrderSnapshot } = useDinerCartStore();
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -41,152 +57,216 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
     }
   }, [orderQuery.data, setOrderSnapshot]);
 
-  const cartItems = useMemo(() => items.filter((item) => item.status === "cart"), [items]);
-  const liveItems = useMemo(() => items.filter((item) => item.status !== "cart"), [items]);
+  const cartItems = useMemo(
+    () => items.filter((item) => item.status === "cart"),
+    [items],
+  );
+  const liveItems = useMemo(
+    () => items.filter((item) => item.status !== "cart"),
+    [items],
+  );
 
   async function handleConfirmOrder() {
     setConfirming(true);
     setFeedback(null);
+
     try {
       await fetchJson("/api/diner/order/confirm", { method: "POST" });
       await orderQuery.refetch();
-      setFeedback("Pedido confirmado y enviado a cocina.");
+      setFeedback("Pedido confirmado y enviado a cocina/barra.");
     } catch (error) {
-       setFeedback(error instanceof Error ? error.message : "Error al confirmar pedido.");
+      setFeedback(
+        error instanceof Error ? error.message : "Error al confirmar el pedido.",
+      );
     } finally {
       setConfirming(false);
     }
   }
 
-  const subtotalLive = liveItems.reduce((acc, item) => acc + item.priceSnapshot * item.qty, 0);
-  const subtotalCart = cartItems.reduce((acc, item) => acc + item.priceSnapshot * item.qty, 0);
+  const subtotalLive = liveItems.reduce(
+    (accumulator, item) => accumulator + item.priceSnapshot * item.qty,
+    0,
+  );
+  const subtotalCart = cartItems.reduce(
+    (accumulator, item) => accumulator + item.priceSnapshot * item.qty,
+    0,
+  );
   const subtotal = subtotalLive + subtotalCart;
-  const serviceCharge = subtotal * 0.10; // Assuming 10% for layout purposes
-  const total = subtotal + serviceCharge;
 
   return (
-    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background relative pb-28">
-      {/* Top section - Header */}
+    <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background pb-28">
       <header className="flex items-center justify-between px-6 pt-6 pb-4">
         <div className="flex items-center gap-3">
-          <div className="text-primary font-bold">
+          <div className="font-bold text-primary">
             <UtensilsCrossed className="size-6" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">The Bistro</h1>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">
+            {table.name}
+          </h1>
         </div>
-        <div className="bg-secondary/60 text-muted-foreground px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
-          Table {table.number}
+        <div className="rounded-full bg-secondary/60 px-4 py-1.5 text-sm font-semibold tracking-wide text-muted-foreground">
+          Mesa {table.number}
         </div>
       </header>
 
-      {/* Live Order Section */}
-      <section className="px-6 mt-4 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-100">
-         <div className="flex justify-between items-baseline mb-4">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">Live Order</h2>
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Confirmed Items</span>
-         </div>
-         <div className="flex flex-col gap-4">
-            {liveItems.length === 0 ? (
-               <div className="text-[13px] text-muted-foreground italic py-2">No tienes ítems confirmados aún.</div>
-            ) : null}
-            {liveItems.map(item => {
-               const status = statusLabel(item.status);
-               return (
-                  <div key={item.id} className="bg-card rounded-[1.25rem] p-4 flex gap-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-transparent">
-                     <div className="w-20 h-20 rounded-xl bg-secondary/50 shrink-0 shadow-sm relative overflow-hidden flex items-center justify-center">
-                        <span className="text-muted-foreground font-bold text-xl">{item.qty}x</span>
-                     </div>
-                     <div className="flex flex-col w-full justify-center gap-1.5">
-                        <div className="flex justify-between items-start">
-                           <h3 className="font-bold text-foreground text-base leading-tight">{item.qty} {item.nameSnapshot}</h3>
-                           <span className="font-semibold text-foreground">${(item.priceSnapshot * item.qty).toFixed(2)}</span>
-                        </div>
-                        {item.notes && <p className="text-xs text-muted-foreground italic leading-snug">{item.notes}</p>}
-                        <div className="mt-1 flex items-center gap-1">
-                           <span className={`text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 ${status.color}`}>
-                              {item.status === 'delivered' && <div className="size-1.5 rounded-full bg-green-600"></div>}
-                              {item.status === 'pending' && <UtensilsCrossed className="size-2.5" />}
-                              {status.label}
-                           </span>
-                        </div>
-                     </div>
-                  </div>
-               )
-            })}
-         </div>
-      </section>
-
-      {/* Cart Section */}
-      <section className="px-6 mt-10 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-200">
-         <div className="flex justify-between items-baseline mb-4">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">In Your Cart</h2>
-            <span className="text-[10px] font-bold text-[#c14418] uppercase tracking-widest bg-orange-100 px-2.5 py-1 rounded-full">Draft</span>
-         </div>
-         
-         <div className="bg-secondary/40 rounded-[1.5rem] p-5">
-            {cartItems.length === 0 ? (
-               <div className="text-[13px] text-muted-foreground italic text-center py-4">Tu carrito está vacío. <Link href={`/t/${table.id}`} className="text-primary font-bold ml-1">Ver menú</Link></div>
-            ) : null}
-            
-            <div className="flex flex-col gap-6">
-               {cartItems.map((item) => (
-                  <EditableCartItem key={item.id} item={item} onRefresh={() => orderQuery.refetch()} />
-               ))}
-               
-               {cartItems.length > 0 && (
-                  <div className="border border-dashed border-border bg-card rounded-xl p-3 flex items-center gap-3 mt-2 opacity-80 pointer-events-none">
-                     <div className="flex -space-x-2">
-                        <div className="size-6 rounded-full bg-slate-200 border border-white"></div>
-                        <div className="size-6 rounded-full bg-slate-300 border border-white"></div>
-                     </div>
-                     <span className="text-[11px] text-muted-foreground mr-auto">{!sessionData ? "Solo tú en esta sesión" : "Sesión compartida activa"}</span>
-                  </div>
-               )}
+      <section className="mt-4 px-6 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-100">
+        <div className="mb-4 flex justify-between items-baseline">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">
+            Pedido en curso
+          </h2>
+          <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+            Confirmados
+          </span>
+        </div>
+        <div className="flex flex-col gap-4">
+          {liveItems.length === 0 ? (
+            <div className="py-2 text-[13px] italic text-muted-foreground">
+              Todavia no hay items confirmados.
             </div>
-         </div>
+          ) : null}
+
+          {liveItems.map((item) => {
+            const status = statusLabel(item.status);
+
+            return (
+              <div
+                key={item.id}
+                className="flex gap-4 rounded-[1.25rem] border border-transparent bg-card p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)]"
+              >
+                <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary/50 shadow-sm">
+                  <span className="text-xl font-bold text-muted-foreground">
+                    {item.qty}x
+                  </span>
+                </div>
+                <div className="flex w-full flex-col justify-center gap-1.5">
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-base leading-tight font-bold text-foreground">
+                      {item.qty} {item.nameSnapshot}
+                    </h3>
+                    <span className="font-semibold text-foreground">
+                      ${(item.priceSnapshot * item.qty).toFixed(2)}
+                    </span>
+                  </div>
+                  {item.notes ? (
+                    <p className="text-xs leading-snug italic text-muted-foreground">
+                      {item.notes}
+                    </p>
+                  ) : null}
+                  <div className="mt-1 flex items-center gap-1">
+                    <span
+                      className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-black tracking-widest ${status.color}`}
+                    >
+                      {item.status === "delivered" ? (
+                        <div className="size-1.5 rounded-full bg-green-600" />
+                      ) : null}
+                      {item.status === "pending" ? (
+                        <UtensilsCrossed className="size-2.5" />
+                      ) : null}
+                      {status.label}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
-      {/* Totals Section */}
-      <section className="px-6 mt-10 mb-8 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-300">
-         <div className="flex justify-between items-center text-[13px] text-muted-foreground font-medium mb-3">
-            <span>Subtotal ({liveItems.length} confirmed, {cartItems.length} cart)</span>
-            <span className="font-bold text-foreground">${subtotal.toFixed(2)}</span>
-         </div>
-         <div className="flex justify-between items-center text-[13px] text-muted-foreground font-medium mb-6">
-            <span>Service Charge (10%)</span>
-            <span className="font-bold text-foreground">${serviceCharge.toFixed(2)}</span>
-         </div>
-         <div className="flex justify-between items-end border-t border-border/60 pt-4">
-            <span className="text-xl font-bold tracking-tight">Total</span>
-            <span className="text-3xl font-black text-[#c14418] tracking-tighter">${total.toFixed(2)}</span>
-         </div>
-         {feedback && <div className="mt-4 text-[13px] font-bold text-primary text-center">{feedback}</div>}
+      <section className="mt-10 px-6 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-200">
+        <div className="mb-4 flex justify-between items-baseline">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">
+            Tu carrito
+          </h2>
+          <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-bold tracking-widest text-[#c14418] uppercase">
+            Borrador
+          </span>
+        </div>
+
+        <div className="rounded-[1.5rem] bg-secondary/40 p-5">
+          {cartItems.length === 0 ? (
+            <div className="py-4 text-center text-[13px] italic text-muted-foreground">
+              Tu carrito esta vacio.
+              <Link className="ml-1 font-bold text-primary" href={`/t/${table.id}`}>
+                Ver menu
+              </Link>
+            </div>
+          ) : null}
+
+          <div className="flex flex-col gap-6">
+            {cartItems.map((item) => (
+              <EditableCartItem
+                item={item}
+                key={item.id}
+                onRefresh={() => orderQuery.refetch()}
+              />
+            ))}
+
+            {cartItems.length > 0 ? (
+              <div className="mt-2 flex items-center gap-3 rounded-xl border border-dashed border-border bg-card p-3 opacity-80 pointer-events-none">
+                <div className="flex -space-x-2">
+                  <div className="size-6 rounded-full border border-white bg-slate-200" />
+                  <div className="size-6 rounded-full border border-white bg-slate-300" />
+                </div>
+                <span className="mr-auto text-[11px] text-muted-foreground">
+                  {!sessionData ? "Solo vos en esta sesion" : "Sesion compartida activa"}
+                </span>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </section>
 
-      {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-4 bg-card shadow-[0_-2px_20px_rgba(0,0,0,0.06)] rounded-[1.75rem] p-3 animate-in slide-in-from-bottom-12 duration-500">
-         <Link href={`/t/${table.id}/payment`} className="flex-none">
-           <div className="bg-secondary/60 hover:bg-secondary/90 transition-colors h-14 w-28 rounded-2xl flex items-center justify-center gap-2 text-foreground font-bold">
-              <ReceiptText className="size-5" /> <span>Bill</span>
-           </div>
-         </Link>
-         
-         {cartItems.length > 0 ? (
-            <button 
-               disabled={confirming}
-               onClick={() => void handleConfirmOrder()}
-               className="flex-1 bg-primary hover:bg-[#a83b14] active:scale-[0.98] transition-all h-14 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-md shadow-primary/20"
-            >
-               {confirming ? <RefreshCcw className="size-5 animate-spin" /> : <ShoppingCart className="size-5" />}
-               <span>Confirm Order</span>
-            </button>
-         ) : (
-            <Link href={`/t/${table.id}`} className="flex-1 bg-primary hover:bg-[#a83b14] active:scale-[0.98] transition-all h-14 rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-md shadow-primary/20">
-               Ver el Menú
-            </Link>
-         )}
+      <section className="mt-10 mb-8 px-6 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-forwards delay-300">
+        <div className="mb-3 flex items-center justify-between text-[13px] font-medium text-muted-foreground">
+          <span>
+            Subtotal ({liveItems.length} confirmados, {cartItems.length} en carrito)
+          </span>
+          <span className="font-bold text-foreground">${subtotal.toFixed(2)}</span>
+        </div>
+        <div className="flex items-end justify-between border-t border-border/60 pt-4">
+          <span className="text-xl font-bold tracking-tight">Total estimado</span>
+          <span className="text-3xl font-black tracking-tighter text-[#c14418]">
+            ${subtotal.toFixed(2)}
+          </span>
+        </div>
+        {feedback ? (
+          <div className="mt-4 text-center text-[13px] font-bold text-primary">
+            {feedback}
+          </div>
+        ) : null}
+      </section>
+
+      <div className="fixed right-4 bottom-4 left-4 z-50 flex items-center gap-4 rounded-[1.75rem] bg-card p-3 shadow-[0_-2px_20px_rgba(0,0,0,0.06)] animate-in slide-in-from-bottom-12 duration-500">
+        <Link className="flex-none" href={`/t/${table.id}/pay`}>
+          <div className="flex h-14 w-28 items-center justify-center gap-2 rounded-2xl bg-secondary/60 font-bold text-foreground transition-colors hover:bg-secondary/90">
+            <ReceiptText className="size-5" />
+            <span>Cuenta</span>
+          </div>
+        </Link>
+
+        {cartItems.length > 0 ? (
+          <button
+            className="flex flex-1 items-center justify-center gap-3 rounded-2xl bg-primary h-14 font-bold text-white shadow-md shadow-primary/20 transition-all hover:bg-[#a83b14] active:scale-[0.98]"
+            disabled={confirming}
+            onClick={() => void handleConfirmOrder()}
+            type="button"
+          >
+            {confirming ? (
+              <RefreshCcw className="size-5 animate-spin" />
+            ) : (
+              <ShoppingCart className="size-5" />
+            )}
+            <span>Confirmar pedido</span>
+          </button>
+        ) : (
+          <Link
+            className="flex flex-1 items-center justify-center gap-3 rounded-2xl bg-primary h-14 font-bold text-white shadow-md shadow-primary/20 transition-all hover:bg-[#a83b14] active:scale-[0.98]"
+            href={`/t/${table.id}`}
+          >
+            Ver menu
+          </Link>
+        )}
       </div>
-
     </div>
   );
 }
@@ -203,32 +283,51 @@ function EditableCartItem({ item, onRefresh }: EditableCartItemProps) {
   async function handleDelete() {
     setIsSaving(true);
     setFeedback(null);
+
     try {
       await fetchJson(`/api/diner/order/items/${item.id}`, { method: "DELETE" });
       await onRefresh();
-    } catch (error) {
-      setFeedback("No pudimos quitar el ítem.");
+    } catch {
+      setFeedback("No pudimos quitar el item.");
     } finally {
       setIsSaving(false);
     }
   }
 
-  // Edit logic is simplified for UI clarity in this design map.
-  // Real world could expand a form here or open the dialog.
   return (
-    <div className="flex gap-4 items-start w-full relative">
-       {isSaving && <div className="absolute inset-0 bg-white/50 z-10 rounded-xl" />}
-       <div className="bg-card w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm font-bold text-primary">
-          {item.qty}x
-       </div>
-       <div className="flex flex-col flex-1 justify-center min-h-[3.5rem] pt-1">
-          <h4 className="font-bold text-foreground text-[14.5px] leading-tight">{item.nameSnapshot}</h4>
-          <span className="text-muted-foreground text-[12.5px] font-medium leading-none mt-1">${(item.priceSnapshot * item.qty).toFixed(2)}</span>
-       </div>
-       <div className="flex items-center gap-3 h-14">
-          <button className="text-muted-foreground/60 hover:text-foreground transition-colors"><Edit2 className="size-4" /></button>
-          <button onClick={() => void handleDelete()} className="text-muted-foreground/60 hover:text-destructive transition-colors"><Trash2 className="size-[18px]" /></button>
-       </div>
+    <div className="relative flex w-full items-start gap-4">
+      {isSaving ? <div className="absolute inset-0 z-10 rounded-xl bg-white/50" /> : null}
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-card font-bold text-primary shadow-sm">
+        {item.qty}x
+      </div>
+      <div className="flex min-h-[3.5rem] flex-1 flex-col justify-center pt-1">
+        <h4 className="text-[14.5px] leading-tight font-bold text-foreground">
+          {item.nameSnapshot}
+        </h4>
+        <span className="mt-1 text-[12.5px] leading-none font-medium text-muted-foreground">
+          ${(item.priceSnapshot * item.qty).toFixed(2)}
+        </span>
+      </div>
+      <div className="flex h-14 items-center gap-3">
+        <button
+          className="text-muted-foreground/60 transition-colors hover:text-foreground"
+          type="button"
+        >
+          <Edit2 className="size-4" />
+        </button>
+        <button
+          className="text-muted-foreground/60 transition-colors hover:text-destructive"
+          onClick={() => void handleDelete()}
+          type="button"
+        >
+          <Trash2 className="size-[18px]" />
+        </button>
+      </div>
+      {feedback ? (
+        <p className="absolute -bottom-5 left-[4.5rem] text-[11px] text-destructive">
+          {feedback}
+        </p>
+      ) : null}
     </div>
   );
 }

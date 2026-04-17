@@ -426,6 +426,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      restaurant_config: {
+        Row: {
+          created_at: string;
+          id: number;
+          mp_access_token: string | null;
+          mp_public_key: string | null;
+          name: string;
+          settings: Json;
+          tip_options: Json;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: number;
+          mp_access_token?: string | null;
+          mp_public_key?: string | null;
+          name: string;
+          settings?: Json;
+          tip_options?: Json;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: number;
+          mp_access_token?: string | null;
+          mp_public_key?: string | null;
+          name?: string;
+          settings?: Json;
+          tip_options?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

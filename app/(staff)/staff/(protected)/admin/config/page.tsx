@@ -7,23 +7,21 @@ export default async function AdminConfigPage() {
   await requireAdminStaffSession();
 
   const admin = supabaseAdmin();
-  const { data: rawData } = await admin
+  const { data } = await admin
     .from("restaurant_config")
     .select("mp_access_token, mp_public_key")
     .eq("id", 1)
     .maybeSingle();
 
-  const config = rawData as unknown as { mp_access_token: string | null; mp_public_key: string | null };
-
   return (
     <AdminShell
-      title="Configuración General"
-      description="Manage your restaurant identity, payment gateways, and operational flow."
       activeHref="/staff/admin/config"
+      description="Gestiona la identidad del restaurante, los pagos y el flujo operativo."
+      title="Configuracion general"
     >
       <AdminConfigForm
-        hasAccessToken={!!config?.mp_access_token}
-        mpPublicKey={config?.mp_public_key ?? null}
+        hasAccessToken={Boolean(data?.mp_access_token)}
+        mpPublicKey={data?.mp_public_key ?? null}
       />
     </AdminShell>
   );
