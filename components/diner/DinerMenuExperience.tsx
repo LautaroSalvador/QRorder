@@ -20,7 +20,7 @@ export function DinerMenuExperience({
   categories,
   table,
 }: DinerMenuExperienceProps) {
-  const { data: sessionData, isLoading: isSessionLoading } = useDinerSession(table.id);
+  const { data: sessionData } = useDinerSession(table.id);
   const orderQuery = useDinerOrder(Boolean(sessionData), table.id);
   const {
     closeItemDialog,

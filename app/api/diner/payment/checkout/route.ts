@@ -7,6 +7,7 @@ import {
   readJsonBody,
 } from "@/lib/api-response";
 import { getDinerSession } from "@/lib/auth/diner-jwt";
+import { getMercadoPagoEnv } from "@/lib/env";
 import {
   createMercadoPagoClient,
   getMercadoPagoCheckoutUrl,
@@ -16,7 +17,6 @@ import {
   dinerPaymentCheckoutBodySchema,
   dinerPaymentCheckoutResponseSchema,
 } from "@/lib/validations/diner";
-import { getMercadoPagoEnv } from "@/lib/env";
 
 function roundCurrency(value: number) {
   return Number(value.toFixed(2));
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   const dinerSession = await getDinerSession(request);
 
   if (!dinerSession) {
-    return errorResponse("UNAUTHORIZED", "Sesión inválida.", 401);
+    return errorResponse("UNAUTHORIZED", "Sesion invalida.", 401);
   }
 
   const bodyResult = await readJsonBody(request);
@@ -53,19 +53,19 @@ export async function POST(request: NextRequest) {
     if (sessionError) {
       return errorResponse(
         "INTERNAL",
-        getErrorMessage(sessionError, "No pudimos validar la sesión."),
+        getErrorMessage(sessionError, "No pudimos validar la sesion."),
         500,
       );
     }
 
     if (!tableSession || tableSession.table_id !== dinerSession.tableId) {
-      return errorResponse("NOT_FOUND", "No encontramos la sesión de la mesa.", 404);
+      return errorResponse("NOT_FOUND", "No encontramos la sesion de la mesa.", 404);
     }
 
     if (tableSession.status !== "awaiting_payment") {
       return errorResponse(
         "CONFLICT",
-        "La mesa todavía no está lista para pagar.",
+        "La mesa todavia no esta lista para pagar.",
         409,
       );
     }
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     if (total <= 0) {
       return errorResponse(
         "CONFLICT",
-        "No hay un total válido para enviar a Mercado Pago.",
+        "No hay un total valido para enviar a Mercado Pago.",
         409,
       );
     }
@@ -201,32 +201,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const preferencePayload = {
+      auto_return: successUrl.startsWith("https") ? ("approved" as const) : undefined,
+      back_urls: {
+        failure: failureUrl,
+        pending: pendingUrl,
+        success: successUrl,
+      },
+      external_reference: tableSession.id,
+      items: [
+        {
+          currency_id: "ARS",
+          description: table.name,
+          id: order.id,
+          quantity: 1,
+          title: `Consumo Mesa ${table.number}`,
+          unit_price: total,
+        },
+      ],
+      metadata: {
+        local_payment_id: paymentRecord.id,
+        session_id: tableSession.id,
+        table_id: table.id,
+      },
+      notification_url: notificationUrl,
+    };
+
     try {
       const preference = await preferenceClient.create({
-          auto_return: successUrl.startsWith("https") ? "approved" : undefined,
-          back_urls: {
-            failure: failureUrl,
-            pending: pendingUrl,
-            success: successUrl,
-          },
-          external_reference: tableSession.id,
-          items: [
-            {
-              currency_id: "ARS",
-              description: table.name,
-              id: order.id,
-              quantity: 1,
-              title: `Consumo Mesa ${table.number}`,
-              unit_price: total,
-            },
-          ],
-          metadata: {
-            local_payment_id: paymentRecord.id,
-            session_id: tableSession.id,
-            table_id: table.id,
-          },
-          notification_url: notificationUrl,
-        },
+        body: preferencePayload,
       });
 
       const checkoutUrl = getMercadoPagoCheckoutUrl({
@@ -250,7 +253,7 @@ export async function POST(request: NextRequest) {
 
         return errorResponse(
           "INTERNAL",
-          "Mercado Pago no devolvió una URL de checkout válida.",
+          "Mercado Pago no devolvio una URL de checkout valida.",
           500,
         );
       }
@@ -277,7 +280,7 @@ export async function POST(request: NextRequest) {
         .from("payments")
         .update({
           raw_payload: {
-            error: getErrorMessage(error, "Mercado Pago rechazó la preferencia."),
+            error: getErrorMessage(error, "Mercado Pago rechazo la preferencia."),
             order_id: order.id,
             tip_percentage: parsedBody.data.tip,
           },
