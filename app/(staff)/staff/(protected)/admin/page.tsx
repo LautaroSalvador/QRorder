@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
+import { DashboardKPIs } from "@/components/admin/DashboardKPIs";
 import {
   Card,
   CardContent,
@@ -99,6 +100,11 @@ export default async function AdminPage() {
             </Card>
           </Link>
         ))}
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold">Indicadores de hoy</h2>
+        <DashboardKPIs />
       </section>
     </AdminShell>
   );
