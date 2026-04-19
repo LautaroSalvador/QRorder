@@ -20,3 +20,4 @@
  GET /api/staff/admin/dashboard 200 in 10620ms
  GET /api/staff/admin/dashboard 200 in 1217ms
  GET /api/staff/admin/dashboard 200 in 978ms
+ GET /api/staff/admin/dashboard 200 in 1190ms
