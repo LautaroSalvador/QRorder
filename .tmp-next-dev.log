@@ -14,3 +14,9 @@
  ○ Compiling /staff/admin ...
  ✓ Compiled /staff/admin in 15s (992 modules)
  GET /staff/admin 200 in 17091ms
+ ○ Compiling /api/staff/admin/dashboard ...
+ ✓ Compiled /api/staff/admin/dashboard in 9.1s (1005 modules)
+ GET /staff/admin 200 in 196ms
+ GET /api/staff/admin/dashboard 200 in 10620ms
+ GET /api/staff/admin/dashboard 200 in 1217ms
+ GET /api/staff/admin/dashboard 200 in 978ms
