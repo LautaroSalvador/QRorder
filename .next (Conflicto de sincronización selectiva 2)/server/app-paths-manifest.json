@@ -1,0 +1,10 @@
+{
+  "/api/staff/kitchen/items/route": "app/api/staff/kitchen/items/route.js",
+  "/api/staff/bar/items/route": "app/api/staff/bar/items/route.js",
+  "/(public)/t/[tableId]/page": "app/(public)/t/[tableId]/page.js",
+  "/(public)/t/[tableId]/order/page": "app/(public)/t/[tableId]/order/page.js",
+  "/(public)/t/[tableId]/pay/page": "app/(public)/t/[tableId]/pay/page.js",
+  "/page": "app/page.js",
+  "/(staff)/staff/(protected)/admin/reports/page": "app/(staff)/staff/(protected)/admin/reports/page.js",
+  "/(staff)/staff/(protected)/bar/page": "app/(staff)/staff/(protected)/bar/page.js"
+}

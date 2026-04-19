@@ -1,0 +1,225 @@
+{
+  "pages": {
+    "/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
+    ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
+    "/(public)/t/[tableId]/pay/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public)/t/[tableId]/pay/page.js"
+    ],
+    "/api/diner/order/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/diner/order/route.js"
+    ],
+    "/api/diner/payment/checkout/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/diner/payment/checkout/route.js"
+    ],
+    "/(public)/t/[tableId]/order/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public)/t/[tableId]/order/page.js"
+    ],
+    "/api/staff/tables/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/tables/route.js"
+    ],
+    "/api/staff/tables/[tableId]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/tables/[tableId]/route.js"
+    ],
+    "/(staff)/staff/(protected)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/layout.js"
+    ],
+    "/(staff)/staff/(protected)/cashier/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/cashier/page.js"
+    ],
+    "/api/staff/tables/[tableId]/reset/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/tables/[tableId]/reset/route.js"
+    ],
+    "/(staff)/staff/(protected)/admin/tables/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/tables/page.js"
+    ],
+    "/api/staff/admin/tables/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/tables/route.js"
+    ],
+    "/(public)/t/[tableId]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public)/t/[tableId]/page.js"
+    ],
+    "/api/diner/session/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/diner/session/route.js"
+    ],
+    "/api/diner/order/items/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/diner/order/items/route.js"
+    ],
+    "/api/diner/order/confirm/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/diner/order/confirm/route.js"
+    ],
+    "/(staff)/staff/(protected)/bar/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/bar/page.js"
+    ],
+    "/api/staff/bar/items/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/bar/items/route.js"
+    ],
+    "/(staff)/staff/(protected)/admin/menu/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/menu/page.js"
+    ],
+    "/api/staff/tables/[tableId]/close/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/tables/[tableId]/close/route.js"
+    ],
+    "/api/staff/tables/[tableId]/mark-paid-offline/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/tables/[tableId]/mark-paid-offline/route.js"
+    ],
+    "/(staff)/staff/(protected)/admin/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/page.js"
+    ],
+    "/api/staff/admin/tables/positions/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/tables/positions/route.js"
+    ],
+    "/(staff)/staff/(protected)/admin/menu/categories/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/menu/categories/page.js"
+    ],
+    "/(staff)/staff/(protected)/admin/menu/items/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/menu/items/page.js"
+    ],
+    "/api/staff/admin/categories/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/categories/route.js"
+    ],
+    "/(staff)/staff/(protected)/kitchen/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/kitchen/page.js"
+    ],
+    "/api/staff/kitchen/items/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/kitchen/items/route.js"
+    ],
+    "/(public)/t/[tableId]/done/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(public)/t/[tableId]/done/page.js"
+    ],
+    "/api/diner/session/clear/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/diner/session/clear/route.js"
+    ],
+    "/api/staff/admin/dashboard/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/dashboard/route.js"
+    ],
+    "/(staff)/staff/(protected)/admin/reports/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/reports/page.js"
+    ],
+    "/api/staff/admin/reports/sales/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/reports/sales/route.js"
+    ],
+    "/api/staff/admin/reports/top-items/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/reports/top-items/route.js"
+    ],
+    "/api/staff/admin/reports/prep-time/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/reports/prep-time/route.js"
+    ],
+    "/api/diner/order/items/[itemId]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/diner/order/items/[itemId]/route.js"
+    ],
+    "/(staff)/staff/(protected)/admin/users/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/users/page.js"
+    ],
+    "/api/staff/admin/users/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/users/route.js"
+    ],
+    "/(staff)/staff/(protected)/admin/config/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(staff)/staff/(protected)/admin/config/page.js"
+    ],
+    "/api/staff/admin/config/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/config/route.js"
+    ],
+    "/api/staff/admin/categories/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/categories/[id]/route.js"
+    ],
+    "/api/staff/admin/menu-items/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/menu-items/route.js"
+    ],
+    "/api/staff/admin/users/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/staff/admin/users/[id]/route.js"
+    ]
+  }
+}

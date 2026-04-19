@@ -1,0 +1,16 @@
+
+> mesaqr@0.1.0 dev
+> next dev --hostname 0.0.0.0
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.6s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1105ms (244 modules)
+ ○ Compiling /staff/admin ...
+ ✓ Compiled /staff/admin in 15s (992 modules)
+ GET /staff/admin 200 in 17091ms
