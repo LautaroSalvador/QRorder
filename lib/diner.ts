@@ -56,7 +56,7 @@ async function getSessionById(sessionId: string) {
     .maybeSingle();
 
   if (error) {
-    throw new Error(getErrorMessage(error, "No pudimos cargar la sesión."));
+    throw new Error(getErrorMessage(error, "No pudimos cargar la sesion."));
   }
 
   return data;
@@ -89,7 +89,7 @@ async function getActiveSessionForTable(tableId: string) {
     .maybeSingle();
 
   if (error) {
-    throw new Error(getErrorMessage(error, "No pudimos buscar una sesión activa."));
+    throw new Error(getErrorMessage(error, "No pudimos buscar una sesion activa."));
   }
 
   return data;
@@ -151,21 +151,16 @@ export async function getDinerEntryState(tableId: string) {
     return {
       error: {
         code: "NOT_FOUND" as const,
-        message: "La mesa no existe o el QR no es válido.",
+        message: "La mesa no existe o el QR no es valido.",
       },
     };
   }
 
-  if (!["available", "occupied"].includes(table.status)) {
-    const message =
-      table.status === "awaiting_payment"
-        ? "La mesa está cerrando la cuenta en este momento."
-        : "La mesa no está disponible ahora.";
-
+  if (table.status === "closed") {
     return {
       error: {
         code: "CONFLICT" as const,
-        message,
+        message: "La mesa no esta disponible ahora.",
       },
     };
   }
@@ -183,18 +178,13 @@ export async function ensureDinerSession(
 
   if (!table) {
     return {
-      response: errorResponse("NOT_FOUND", "La mesa no existe o el QR no es válido.", 404),
+      response: errorResponse("NOT_FOUND", "La mesa no existe o el QR no es valido.", 404),
     };
   }
 
-  if (!["available", "occupied"].includes(table.status)) {
-    const message =
-      table.status === "awaiting_payment"
-        ? "La mesa está cerrando la cuenta en este momento."
-        : "La mesa no está disponible ahora.";
-
+  if (table.status === "closed") {
     return {
-      response: errorResponse("CONFLICT", message, 409),
+      response: errorResponse("CONFLICT", "La mesa no esta disponible ahora.", 409),
     };
   }
 
@@ -203,8 +193,9 @@ export async function ensureDinerSession(
   if (cookieSession && cookieSession.tableId === tableId) {
     const activeSession = await getSessionById(cookieSession.sessionId);
 
-    if (activeSession && activeSession.status === "open") {
+    if (activeSession && ["open", "awaiting_payment", "paid"].includes(activeSession.status)) {
       const existingOrder = await getOrderBySessionId(activeSession.id);
+      const freshTable = await getTableById(tableId);
 
       if (existingOrder) {
         return {
@@ -212,7 +203,7 @@ export async function ensureDinerSession(
             orderId: existingOrder.id,
             resumed: true,
             sessionId: activeSession.id,
-            table: normalizeTable(table),
+            table: normalizeTable(freshTable ?? table),
           }),
         };
       }
@@ -226,7 +217,7 @@ export async function ensureDinerSession(
     session = await getSessionById(table.current_session_id);
   }
 
-  if (!session || session.status !== "open") {
+  if (!session || !["open", "awaiting_payment"].includes(session.status)) {
     session = await getActiveSessionForTable(table.id);
   }
 
@@ -235,20 +226,34 @@ export async function ensureDinerSession(
   }
 
   if (!session || !order) {
+    if (table.status === "awaiting_payment") {
+      return {
+        response: errorResponse(
+          "CONFLICT",
+          "La mesa esta cerrando la cuenta en este momento.",
+          409,
+        ),
+      };
+    }
+
     const created = await createSessionForTable(table);
     session = created.session;
     order = created.order;
   }
+
+  const freshTable = await getTableById(table.id);
 
   return {
     payload: dinerSessionResponseSchema.parse({
       orderId: order.id,
       resumed: false,
       sessionId: session.id,
-      table: normalizeTable({
-        ...table,
-        status: "occupied",
-      }),
+      table: normalizeTable(
+        freshTable ?? {
+          ...table,
+          status: table.status === "available" ? "occupied" : table.status,
+        },
+      ),
     }),
   };
 }
@@ -411,7 +416,7 @@ export async function getPublishedMenu() {
     .order("name", { ascending: true });
 
   if (categoriesError) {
-    throw new Error(getErrorMessage(categoriesError, "No pudimos cargar el menú."));
+    throw new Error(getErrorMessage(categoriesError, "No pudimos cargar el menu."));
   }
 
   const { data: items, error: itemsError } = await admin
@@ -422,7 +427,7 @@ export async function getPublishedMenu() {
     .order("name", { ascending: true });
 
   if (itemsError) {
-    throw new Error(getErrorMessage(itemsError, "No pudimos cargar el menú."));
+    throw new Error(getErrorMessage(itemsError, "No pudimos cargar el menu."));
   }
 
   const itemsByCategory = new Map<string, typeof items>();

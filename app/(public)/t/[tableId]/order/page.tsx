@@ -1,6 +1,7 @@
 import { DinerErrorState } from "@/components/diner/DinerErrorState";
 import { DinerOrderExperience } from "@/components/diner/DinerOrderExperience";
 import { getDinerEntryState } from "@/lib/diner";
+import { getRestaurantConfigSnapshot } from "@/lib/restaurant-config";
 import { dinerTableParamsSchema } from "@/lib/validations/diner";
 
 type DinerOrderPageProps = {
@@ -25,9 +26,14 @@ export default async function DinerOrderPage({ params }: DinerOrderPageProps) {
       return <DinerErrorState message={entryState.error.message} />;
     }
 
+    const restaurantConfig = await getRestaurantConfigSnapshot();
+
     return (
       <main className="bg-muted/30">
-        <DinerOrderExperience table={entryState.table} />
+        <DinerOrderExperience
+          restaurantName={restaurantConfig.name}
+          table={entryState.table}
+        />
       </main>
     );
   } catch {

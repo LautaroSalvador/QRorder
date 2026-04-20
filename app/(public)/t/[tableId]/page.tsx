@@ -1,7 +1,9 @@
 import { DinerErrorState } from "@/components/diner/DinerErrorState";
 import { DinerMenuExperience } from "@/components/diner/DinerMenuExperience";
 import { getDinerEntryState, getPublishedMenu } from "@/lib/diner";
+import { getRestaurantConfigSnapshot } from "@/lib/restaurant-config";
 import { dinerTableParamsSchema } from "@/lib/validations/diner";
+import { redirect } from "next/navigation";
 
 type DinerMenuPageProps = {
   params: Promise<{
@@ -25,11 +27,22 @@ export default async function DinerMenuPage({ params }: DinerMenuPageProps) {
       return <DinerErrorState message={entryState.error.message} />;
     }
 
-    const categories = await getPublishedMenu();
+    if (entryState.table.status === "awaiting_payment") {
+      redirect(`/t/${entryState.table.id}/pay`);
+    }
+
+    const [categories, restaurantConfig] = await Promise.all([
+      getPublishedMenu(),
+      getRestaurantConfigSnapshot(),
+    ]);
 
     return (
       <main className="bg-muted/30">
-        <DinerMenuExperience categories={categories} table={entryState.table} />
+        <DinerMenuExperience
+          categories={categories}
+          restaurantName={restaurantConfig.name}
+          table={entryState.table}
+        />
       </main>
     );
   } catch {

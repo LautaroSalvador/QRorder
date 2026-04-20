@@ -32,6 +32,7 @@ Antes de trabajar en el repo, leer:
 npm install
 cp .env.example .env.local
 npx supabase db push
+psql "$DATABASE_URL" -f supabase/seed.sql
 npm run dev
 ```
 
@@ -40,11 +41,25 @@ Node objetivo: 20 LTS.
 ## Scripts
 
 ```bash
-npm run dev
-npm run build
-npm run lint
-npm run typecheck
-npm run test
+npm run dev          # dev server con turbopack
+npm run build        # build de produccion
+npm run typecheck    # tsc --noEmit
+npm run lint         # eslint con max-warnings=0
+npm run test:run     # vitest run (una pasada, CI)
+```
+
+## Desarrollo en dispositivos moviles (Tailscale)
+
+Para probar el flujo del comensal desde un celular en la misma red Tailscale,
+exponer el dev server en la interfaz Tailscale y configurar la URL publica:
+
+```bash
+# .env.local
+NEXT_PUBLIC_APP_URL=http://{IP-tailscale}:3000
+```
+
+```bash
+npm run dev -- --hostname 0.0.0.0
 ```
 
 ## Estructura principal
@@ -76,6 +91,8 @@ npm run test
 npm run typecheck
 npm run lint
 ```
+
+`npm run test` / `npm run test:run` apuntan a `vitest`. Todavia no hay una suite de tests automatizados versionada: los scripts quedan listos para cuando se instale `vitest` y se agreguen casos.
 
 Si cambias el schema:
 

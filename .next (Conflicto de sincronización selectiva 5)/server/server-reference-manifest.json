@@ -1,0 +1,19 @@
+{
+  "node": {
+    "006a447def3fe7bff2bae09f0d1f6e414b51e94f9d": {
+      "workers": {
+        "app/(staff)/staff/(protected)/admin/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Ccatal%5C%5CDropbox%5C%5CQR-APP%5C%5Ccomponents%5C%5Cstaff%5C%5CStaffSignOutButton.tsx%22%2C%5B%7B%22id%22%3A%22006a447def3fe7bff2bae09f0d1f6e414b51e94f9d%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Ccatal%5C%5CDropbox%5C%5CQR-APP%5C%5Ccomponents%5C%5Cstaff%5C%5CStaffSignOutButton.tsx%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(staff)/staff/(protected)/admin/page": "rsc"
+      },
+      "filename": "../C:\\Users\\catal\\Dropbox\\QR-APP\\components\\staff\\StaffSignOutButton.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "k+AHPqM6YbTAs125kmNKB5JxmssflbwLbMaisjs6/w0="
+}

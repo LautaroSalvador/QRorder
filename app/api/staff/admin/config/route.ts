@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { errorResponse, getErrorMessage, readJsonBody } from "@/lib/api-response";
 import { getStaffSession } from "@/lib/auth/staff";
 import { encryptText } from "@/lib/crypto";
+import {
+  normalizeSoundSettings,
+  normalizeTipOptions,
+} from "@/lib/restaurant-config";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import { adminConfigUpdateSchema } from "@/lib/validations/admin";
@@ -20,7 +24,7 @@ export async function GET() {
     const admin = supabaseAdmin();
     const { data, error } = await admin
       .from("restaurant_config")
-      .select("mp_access_token, mp_public_key")
+      .select("name, mp_access_token, mp_public_key, settings, tip_options")
       .eq("id", 1)
       .maybeSingle();
 
@@ -34,7 +38,10 @@ export async function GET() {
 
     return NextResponse.json({
       has_access_token: Boolean(data?.mp_access_token),
-      mp_public_key: data?.mp_public_key ?? null,
+      has_public_key: Boolean(data?.mp_public_key),
+      restaurant_name: data?.name?.trim() || "MesaQR",
+      settings: normalizeSoundSettings(data?.settings),
+      tip_options: normalizeTipOptions(data?.tip_options),
     });
   } catch (error) {
     return errorResponse(
@@ -65,14 +72,53 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const admin = supabaseAdmin();
+    const { data: currentConfig, error: currentConfigError } = await admin
+      .from("restaurant_config")
+      .select("settings")
+      .eq("id", 1)
+      .single();
+
+    if (currentConfigError) {
+      return errorResponse(
+        "INTERNAL",
+        getErrorMessage(currentConfigError, "No pudimos cargar la configuracion actual."),
+        500,
+      );
+    }
+
     const updateData: RestaurantConfigUpdate = {};
+    const nextSettings = normalizeSoundSettings(currentConfig.settings);
+
+    if (parsedBody.data.restaurantName) {
+      updateData.name = parsedBody.data.restaurantName;
+    }
+
+    if (parsedBody.data.tipOptions) {
+      updateData.tip_options = normalizeTipOptions(parsedBody.data.tipOptions);
+    }
+
+    if (parsedBody.data.kitchenNotificationsEnabled !== undefined) {
+      nextSettings.kitchenNotificationsEnabled =
+        parsedBody.data.kitchenNotificationsEnabled;
+    }
+
+    if (parsedBody.data.barNotificationsEnabled !== undefined) {
+      nextSettings.barNotificationsEnabled = parsedBody.data.barNotificationsEnabled;
+    }
+
+    if (
+      parsedBody.data.kitchenNotificationsEnabled !== undefined ||
+      parsedBody.data.barNotificationsEnabled !== undefined
+    ) {
+      updateData.settings = nextSettings;
+    }
 
     if (parsedBody.data.mpAccessToken) {
       updateData.mp_access_token = encryptText(parsedBody.data.mpAccessToken);
     }
 
     if (parsedBody.data.mpPublicKey !== undefined) {
-      updateData.mp_public_key = parsedBody.data.mpPublicKey;
+      updateData.mp_public_key = encryptText(parsedBody.data.mpPublicKey);
     }
 
     if (Object.keys(updateData).length > 0) {

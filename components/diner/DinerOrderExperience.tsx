@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Edit2,
-  ReceiptText,
-  RefreshCcw,
-  ShoppingCart,
-  Trash2,
-  UtensilsCrossed,
-} from "lucide-react";
+import { ReceiptText, RefreshCcw, ShoppingCart, Trash2, UtensilsCrossed } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { useDinerOrder } from "@/components/diner/useDinerOrder";
@@ -18,33 +11,44 @@ import { useDinerCartStore } from "@/lib/stores/diner-cart";
 import { dinerTableSchema } from "@/lib/validations/diner";
 
 type DinerOrderExperienceProps = {
+  restaurantName: string;
   table: ReturnType<typeof dinerTableSchema.parse>;
 };
 
-function statusLabel(status: string) {
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("es-AR", {
+    currency: "ARS",
+    style: "currency",
+  }).format(value);
+}
+
+function getStatusLabel(status: string) {
   switch (status) {
     case "cart":
-      return { label: "DRAFT", color: "bg-orange-100 text-[#c14418]" };
+      return { label: "En carrito", tone: "bg-orange-100 text-orange-700" };
     case "pending":
-      return { label: "PENDING", color: "bg-[#fbeadb] text-[#c14418]" };
+      return { label: "Pendiente", tone: "bg-amber-100 text-amber-700" };
     case "accepted":
-      return { label: "ACCEPTED", color: "bg-blue-100/50 text-blue-600" };
+      return { label: "Aceptado", tone: "bg-sky-100 text-sky-700" };
     case "in_progress":
-      return { label: "PREPARING", color: "bg-blue-100 text-blue-600" };
+      return { label: "En preparacion", tone: "bg-blue-100 text-blue-700" };
     case "ready":
-      return { label: "READY", color: "bg-green-100/50 text-green-700" };
+      return { label: "Listo", tone: "bg-emerald-100 text-emerald-700" };
     case "delivered":
-      return { label: "DELIVERED", color: "bg-green-100 text-green-700" };
+      return { label: "Entregado", tone: "bg-emerald-50 text-emerald-700" };
     case "unavailable":
-      return { label: "UNAVAILABLE", color: "bg-red-100 text-red-600" };
+      return { label: "No disponible", tone: "bg-rose-100 text-rose-700" };
     case "cancelled":
-      return { label: "CANCELLED", color: "bg-gray-100 text-gray-600" };
+      return { label: "Cancelado", tone: "bg-stone-200 text-stone-700" };
     default:
-      return { label: status.toUpperCase(), color: "bg-gray-100 text-gray-600" };
+      return { label: status, tone: "bg-stone-100 text-stone-700" };
   }
 }
 
-export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
+export function DinerOrderExperience({
+  restaurantName,
+  table,
+}: DinerOrderExperienceProps) {
   const { data: sessionData } = useDinerSession(table.id);
   const orderQuery = useDinerOrder(Boolean(sessionData), table.id);
   const { items, setOrderSnapshot } = useDinerCartStore();
@@ -61,8 +65,21 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
     () => items.filter((item) => item.status === "cart"),
     [items],
   );
+
   const liveItems = useMemo(
     () => items.filter((item) => item.status !== "cart"),
+    [items],
+  );
+
+  const subtotal = useMemo(
+    () =>
+      items.reduce((accumulator, item) => {
+        if (item.status === "cancelled" || item.status === "unavailable") {
+          return accumulator;
+        }
+
+        return accumulator + item.priceSnapshot * item.qty;
+      }, 0),
     [items],
   );
 
@@ -73,200 +90,177 @@ export function DinerOrderExperience({ table }: DinerOrderExperienceProps) {
     try {
       await fetchJson("/api/diner/order/confirm", { method: "POST" });
       await orderQuery.refetch();
-      setFeedback("Pedido confirmado y enviado a cocina.");
+      setFeedback("Pedido confirmado y enviado a cocina/barra.");
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Error al confirmar pedido.");
+      setFeedback(error instanceof Error ? error.message : "No pudimos confirmar el pedido.");
     } finally {
       setConfirming(false);
     }
   }
 
-  const subtotalLive = liveItems.reduce(
-    (accumulator, item) => accumulator + item.priceSnapshot * item.qty,
-    0,
-  );
-  const subtotalCart = cartItems.reduce(
-    (accumulator, item) => accumulator + item.priceSnapshot * item.qty,
-    0,
-  );
-  const subtotal = subtotalLive + subtotalCart;
-  const serviceCharge = subtotal * 0.10;
-  const total = subtotal + serviceCharge;
+  const sessionStatus = orderQuery.data?.sessionStatus ?? "open";
+  const billRequested =
+    orderQuery.data?.table.status === "awaiting_payment" && sessionStatus === "open";
 
   return (
-    <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background pb-28">
-      <header className="flex items-center justify-between px-6 pt-6 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="font-bold text-primary">
-            <UtensilsCrossed className="size-6" />
+    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col bg-background pb-28">
+      <header className="sticky top-0 z-20 border-b border-border/50 bg-background/95 px-6 py-4 backdrop-blur">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+              {restaurantName}
+            </p>
+            <h1 className="text-lg font-semibold text-foreground">Tu pedido</h1>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">The Bistro</h1>
+          <div className="rounded-full bg-secondary/60 px-4 py-1.5 text-sm font-semibold text-muted-foreground">
+            Mesa {table.number}
+          </div>
         </div>
-        <div className="rounded-full bg-secondary/60 px-4 py-1.5 text-sm font-semibold tracking-wide text-muted-foreground">
-          Table {table.number}
+
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Se actualiza cada 5 segundos.
+          </p>
+          <button
+            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            type="button"
+            onClick={() => void orderQuery.refetch()}
+          >
+            <RefreshCcw className="size-4" />
+            Actualizar
+          </button>
         </div>
       </header>
 
-      <section className="mt-4 px-6">
-        <div className="mb-4 flex justify-between items-baseline">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Live Order
-          </h2>
-          <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            Confirmed Items
-          </span>
-        </div>
-        <div className="flex flex-col gap-4">
-          {liveItems.length === 0 ? (
-            <div className="py-2 text-[13px] italic text-muted-foreground">
-              No tienes items confirmados aun.
-            </div>
-          ) : null}
-          {liveItems.map((item) => {
-            const status = statusLabel(item.status);
-
-            return (
-              <div
-                key={item.id}
-                className="flex gap-4 rounded-[1.25rem] border border-transparent bg-card p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)]"
-              >
-                <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary/50 shadow-sm">
-                  <span className="text-xl font-bold text-muted-foreground">
-                    {item.qty}x
-                  </span>
-                </div>
-                <div className="flex w-full flex-col justify-center gap-1.5">
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-base leading-tight font-bold text-foreground">
-                      {item.qty} {item.nameSnapshot}
-                    </h3>
-                    <span className="font-semibold text-foreground">
-                      ${(item.priceSnapshot * item.qty).toFixed(2)}
-                    </span>
-                  </div>
-                  {item.notes ? (
-                    <p className="text-xs leading-snug italic text-muted-foreground">
-                      {item.notes}
-                    </p>
-                  ) : null}
-                  <div className="mt-1 flex items-center gap-1">
-                    <span
-                      className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-black tracking-widest ${status.color}`}
-                    >
-                      {item.status === "delivered" ? (
-                        <span className="size-1.5 rounded-full bg-green-600" />
-                      ) : null}
-                      {item.status === "pending" ? (
-                        <UtensilsCrossed className="size-2.5" />
-                      ) : null}
-                      {status.label}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="mt-10 px-6">
-        <div className="mb-4 flex justify-between items-baseline">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            In Your Cart
-          </h2>
-          <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[10px] font-bold tracking-widest text-[#c14418] uppercase">
-            Draft
-          </span>
-        </div>
-
-        <div className="rounded-[1.5rem] bg-secondary/40 p-5">
-          {cartItems.length === 0 ? (
-            <div className="py-4 text-center text-[13px] italic text-muted-foreground">
-              Tu carrito esta vacio.
-              <Link className="ml-1 font-bold text-primary" href={`/t/${table.id}`}>
-                Ver menu
-              </Link>
-            </div>
-          ) : null}
-
-          <div className="flex flex-col gap-6">
-            {cartItems.map((item) => (
-              <EditableCartItem
-                item={item}
-                key={item.id}
-                onRefresh={() => orderQuery.refetch()}
-              />
-            ))}
-
-            {cartItems.length > 0 ? (
-              <div className="mt-2 flex items-center gap-3 rounded-xl border border-dashed border-border bg-card p-3 opacity-80 pointer-events-none">
-                <div className="flex -space-x-2">
-                  <div className="size-6 rounded-full border border-white bg-slate-200" />
-                  <div className="size-6 rounded-full border border-white bg-slate-300" />
-                </div>
-                <span className="mr-auto text-[11px] text-muted-foreground">
-                  {!sessionData ? "Solo vos en esta sesion" : "Sesion compartida activa"}
-                </span>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-10 mb-8 px-6">
-        <div className="mb-3 flex items-center justify-between text-[13px] font-medium text-muted-foreground">
-          <span>
-            Subtotal ({liveItems.length} confirmed, {cartItems.length} cart)
-          </span>
-          <span className="font-bold text-foreground">${subtotal.toFixed(2)}</span>
-        </div>
-        <div className="mb-6 flex items-center justify-between text-[13px] font-medium text-muted-foreground">
-          <span>Service Charge (10%)</span>
-          <span className="font-bold text-foreground">${serviceCharge.toFixed(2)}</span>
-        </div>
-        <div className="flex items-end justify-between border-t border-border/60 pt-4">
-          <span className="text-xl font-bold tracking-tight">Total</span>
-          <span className="text-3xl font-black tracking-tighter text-[#c14418]">
-            ${total.toFixed(2)}
-          </span>
-        </div>
-        {feedback ? (
-          <div className="mt-4 text-center text-[13px] font-bold text-primary">
-            {feedback}
+      <div className="space-y-8 px-6 py-6">
+        {billRequested ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Caja ya recibio el aviso de cierre. Cuando confirmen la cuenta, vas a poder pagar desde esta misma mesa.
           </div>
         ) : null}
-      </section>
 
-      <div className="fixed right-4 bottom-4 left-4 z-50 flex items-center gap-4 rounded-[1.75rem] bg-card p-3 shadow-[0_-2px_20px_rgba(0,0,0,0.06)]">
-        <Link className="flex-none" href={`/t/${table.id}/pay`}>
-          <div className="flex h-14 w-28 items-center justify-center gap-2 rounded-2xl bg-secondary/60 font-bold text-foreground transition-colors hover:bg-secondary/90">
-            <ReceiptText className="size-5" />
-            <span>Bill</span>
+        {sessionStatus === "awaiting_payment" ? (
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+            La cuenta ya esta lista para pagar.
           </div>
-        </Link>
+        ) : null}
 
-        {cartItems.length > 0 ? (
-          <button
-            className="flex h-14 flex-1 items-center justify-center gap-3 rounded-2xl bg-primary font-bold text-white shadow-md shadow-primary/20 transition-all hover:bg-[#a83b14] active:scale-[0.98]"
-            disabled={confirming}
-            onClick={() => void handleConfirmOrder()}
-            type="button"
-          >
-            {confirming ? (
-              <RefreshCcw className="size-5 animate-spin" />
-            ) : (
-              <ShoppingCart className="size-5" />
-            )}
-            <span>Confirm Order</span>
-          </button>
-        ) : (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">Items confirmados</h2>
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {liveItems.length}
+            </span>
+          </div>
+
+          {liveItems.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
+              Todavia no hay items confirmados para esta mesa.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {liveItems.map((item) => {
+                const status = getStatusLabel(item.status);
+
+                return (
+                  <article
+                    key={item.id}
+                    className="rounded-[1.5rem] border border-border/60 bg-card p-4 shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-2">
+                        <p className="text-base font-semibold text-foreground">
+                          {item.qty} x {item.nameSnapshot}
+                        </p>
+                        {item.notes ? (
+                          <p className="text-sm italic text-muted-foreground">{item.notes}</p>
+                        ) : null}
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${status.tone}`}
+                        >
+                          {status.label}
+                        </span>
+                      </div>
+
+                      <p className="text-sm font-semibold text-foreground">
+                        {formatCurrency(item.priceSnapshot * item.qty)}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">En carrito</h2>
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {cartItems.length}
+            </span>
+          </div>
+
+          {cartItems.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
+              No hay items pendientes de confirmar.
+            </div>
+          ) : (
+            <div className="space-y-4 rounded-[1.5rem] bg-secondary/35 p-5">
+              {cartItems.map((item) => (
+                <EditableCartItem
+                  key={item.id}
+                  item={item}
+                  onRefresh={() => orderQuery.refetch()}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="space-y-4 rounded-[1.5rem] border border-border/60 bg-card p-5">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Subtotal actual</span>
+            <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
+          </div>
+          <div className="flex items-center justify-between border-t border-border pt-4">
+            <span className="text-lg font-semibold text-foreground">Total estimado</span>
+            <span className="text-2xl font-black text-primary">{formatCurrency(subtotal)}</span>
+          </div>
+          {feedback ? (
+            <p className="text-sm font-medium text-primary">{feedback}</p>
+          ) : null}
+        </section>
+      </div>
+
+      <div className="fixed bottom-4 left-4 right-4 z-20 grid gap-3 rounded-[1.75rem] bg-card p-3 shadow-[0_-2px_20px_rgba(0,0,0,0.06)]">
+        {sessionStatus === "awaiting_payment" ? (
           <Link
-            className="flex h-14 flex-1 items-center justify-center gap-3 rounded-2xl bg-primary font-bold text-white shadow-md shadow-primary/20 transition-all hover:bg-[#a83b14] active:scale-[0.98]"
-            href={`/t/${table.id}`}
+            className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-primary font-semibold text-white shadow-md shadow-primary/20"
+            href={`/t/${table.id}/pay`}
           >
-            Ver el Menu
+            <ReceiptText className="size-5" />
+            Ir al pago
           </Link>
-        )}
+        ) : cartItems.length > 0 ? (
+          <button
+            className="flex h-14 items-center justify-center gap-3 rounded-2xl bg-primary font-semibold text-white shadow-md shadow-primary/20 disabled:opacity-70"
+            disabled={confirming}
+            type="button"
+            onClick={() => void handleConfirmOrder()}
+          >
+            {confirming ? <RefreshCcw className="size-5 animate-spin" /> : <ShoppingCart className="size-5" />}
+            Confirmar pedido
+          </button>
+        ) : null}
+
+        <Link
+          className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-background font-medium text-foreground"
+          href={`/t/${table.id}`}
+        >
+          <UtensilsCrossed className="size-4" />
+          Seguir pidiendo
+        </Link>
       </div>
     </div>
   );
@@ -286,42 +280,30 @@ function EditableCartItem({ item, onRefresh }: EditableCartItemProps) {
     try {
       await fetchJson(`/api/diner/order/items/${item.id}`, { method: "DELETE" });
       await onRefresh();
-    } catch {
-      // The current UI has no inline delete feedback state yet.
     } finally {
       setIsSaving(false);
     }
   }
 
   return (
-    <div className="relative flex w-full items-start gap-4">
-      {isSaving ? <div className="absolute inset-0 z-10 rounded-xl bg-white/50" /> : null}
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-card font-bold text-primary shadow-sm">
+    <div className="relative flex items-start gap-4 rounded-2xl bg-card p-4 shadow-sm">
+      {isSaving ? <div className="absolute inset-0 rounded-2xl bg-white/60" /> : null}
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary font-semibold text-primary">
         {item.qty}x
       </div>
-      <div className="flex min-h-[3.5rem] flex-1 flex-col justify-center pt-1">
-        <h4 className="text-[14.5px] leading-tight font-bold text-foreground">
-          {item.nameSnapshot}
-        </h4>
-        <span className="mt-1 text-[12.5px] leading-none font-medium text-muted-foreground">
-          ${(item.priceSnapshot * item.qty).toFixed(2)}
-        </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-foreground">{item.nameSnapshot}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {formatCurrency(item.priceSnapshot * item.qty)}
+        </p>
       </div>
-      <div className="flex h-14 items-center gap-3">
-        <button
-          className="text-muted-foreground/60 transition-colors hover:text-foreground"
-          type="button"
-        >
-          <Edit2 className="size-4" />
-        </button>
-        <button
-          className="text-muted-foreground/60 transition-colors hover:text-destructive"
-          onClick={() => void handleDelete()}
-          type="button"
-        >
-          <Trash2 className="size-[18px]" />
-        </button>
-      </div>
+      <button
+        className="text-muted-foreground transition-colors hover:text-destructive"
+        type="button"
+        onClick={() => void handleDelete()}
+      >
+        <Trash2 className="size-4" />
+      </button>
     </div>
   );
 }

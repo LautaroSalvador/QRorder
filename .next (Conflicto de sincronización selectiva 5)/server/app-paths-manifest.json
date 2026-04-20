@@ -1,0 +1,4 @@
+{
+  "/api/staff/admin/dashboard/route": "app/api/staff/admin/dashboard/route.js",
+  "/(staff)/staff/(protected)/admin/page": "app/(staff)/staff/(protected)/admin/page.js"
+}

@@ -123,6 +123,20 @@ export const recordIdParamsSchema = z.object({
 export const emptyQuerySchema = z.object({});
 
 export const adminConfigUpdateSchema = z.object({
-  mpAccessToken: z.string().optional(),
-  mpPublicKey: z.string().optional(),
+  restaurantName: z.string().trim().min(1, "Ingresa el nombre del restaurante.").max(120).optional(),
+  tipOptions: z
+    .array(
+      z.coerce
+        .number()
+        .int("Las propinas sugeridas deben ser enteras.")
+        .min(0, "La propina sugerida no puede ser negativa.")
+        .max(100, "La propina sugerida no puede superar el 100%."),
+    )
+    .min(1, "Ingresa al menos una propina sugerida.")
+    .max(5, "Solo puedes guardar hasta 5 sugerencias.")
+    .optional(),
+  kitchenNotificationsEnabled: z.boolean().optional(),
+  barNotificationsEnabled: z.boolean().optional(),
+  mpAccessToken: z.string().trim().min(1, "Ingresa el access token.").optional(),
+  mpPublicKey: z.string().trim().min(1, "Ingresa la public key.").optional(),
 });

@@ -1,5 +1,6 @@
 import { DinerErrorState } from "@/components/diner/DinerErrorState";
 import { DinerPaymentExperience } from "@/components/diner/DinerPaymentExperience";
+import { getRestaurantConfigSnapshot } from "@/lib/restaurant-config";
 import { dinerTableParamsSchema } from "@/lib/validations/diner";
 
 type DinerPayPageProps = {
@@ -22,12 +23,15 @@ export default async function DinerPayPage({
   }
 
   const resolvedSearchParams = await searchParams;
+  const restaurantConfig = await getRestaurantConfigSnapshot();
 
   return (
     <main className="bg-muted/30">
       <DinerPaymentExperience
+        restaurantName={restaurantConfig.name}
         returnStatus={resolvedSearchParams.status ?? null}
         tableId={parsedParams.data.tableId}
+        tipOptions={restaurantConfig.tipOptions}
       />
     </main>
   );

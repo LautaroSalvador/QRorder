@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-
+import { useQuery } from "@tanstack/react-query";
 import { CreditCard, LoaderCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { useDinerSession } from "@/components/diner/useDinerSession";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,16 +18,17 @@ import { Input } from "@/components/ui/input";
 import { fetchJson } from "@/lib/fetcher";
 import {
   dinerPaymentCheckoutResponseSchema,
+  dinerPaymentStatusResponseSchema,
   type DinerOrderResponse,
 } from "@/lib/validations/diner";
 import { useDinerOrder } from "@/components/diner/useDinerOrder";
 
 type DinerPaymentExperienceProps = {
+  restaurantName: string;
   returnStatus?: string | null;
   tableId: string;
+  tipOptions: number[];
 };
-
-const QUICK_TIP_OPTIONS = [0, 10, 15] as const;
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("es-AR", {
@@ -38,29 +40,54 @@ function formatCurrency(value: number) {
 function getVisibleItems(order: DinerOrderResponse | undefined) {
   return (
     order?.items.filter(
-      (item) => item.status !== "cart" && item.status !== "cancelled" && item.status !== "unavailable",
+      (item) =>
+        item.status !== "cart" &&
+        item.status !== "cancelled" &&
+        item.status !== "unavailable",
     ) ?? []
   );
 }
 
 export function DinerPaymentExperience({
+  restaurantName,
   returnStatus,
   tableId,
+  tipOptions,
 }: DinerPaymentExperienceProps) {
-  const orderQuery = useDinerOrder(true, tableId);
-  const [tipMode, setTipMode] = useState<number | "custom">(10);
-  const [customTip, setCustomTip] = useState("20");
+  const { data: sessionData, error: sessionError } = useDinerSession(tableId);
+  const orderQuery = useDinerOrder(Boolean(sessionData), tableId);
+  const defaultTipOption = tipOptions.find((option) => option > 0) ?? tipOptions[0] ?? 0;
+  const [tipMode, setTipMode] = useState<number | "custom">(defaultTipOption);
+  const [customTip, setCustomTip] = useState("");
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(() => {
     if (returnStatus === "failure") {
-      return "El pago no se pudo completar. Podés intentarlo otra vez.";
+      return "El pago no se pudo completar. Podes intentarlo otra vez.";
     }
 
     if (returnStatus === "pending") {
-      return "Tu pago quedó pendiente de confirmación. Revisá nuevamente en unos segundos.";
+      return "Tu pago quedo pendiente de confirmacion. Revisamos el estado automaticamente.";
     }
 
     return null;
+  });
+
+  const paymentStatusQuery = useQuery({
+    queryKey: ["diner-payment-status", tableId],
+    queryFn: async () =>
+      dinerPaymentStatusResponseSchema.parse(
+        await fetchJson<unknown>("/api/diner/payment/status"),
+      ),
+    enabled:
+      !orderQuery.isLoading &&
+      !orderQuery.error &&
+      (returnStatus !== null || orderQuery.data?.sessionStatus === "paid"),
+    refetchInterval:
+      returnStatus === "pending" || orderQuery.data?.sessionStatus === "paid"
+        ? 5_000
+        : false,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 
   const tipPercentage = useMemo(() => {
@@ -108,19 +135,19 @@ export function DinerPaymentExperience({
     }
   }
 
+  const paymentStatus = paymentStatusQuery.data?.payment?.status ?? null;
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <header className="rounded-[1.75rem] border border-border/80 bg-card/95 p-5 shadow-sm">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
-          MesaQR
+          {restaurantName}
         </p>
         <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Pago de la cuenta
-            </h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Pago de la cuenta</h1>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Elegí la propina y completá el pago con Mercado Pago desde tu celular.
+              Elegi la propina y completa el pago con Mercado Pago desde tu celular.
             </p>
           </div>
           <Button asChild variant="outline">
@@ -128,6 +155,14 @@ export function DinerPaymentExperience({
           </Button>
         </div>
       </header>
+
+      {sessionError ? (
+        <Card>
+          <CardContent className="pt-6 text-sm text-destructive">
+            {sessionError}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {orderQuery.isLoading ? (
         <Card>
@@ -153,21 +188,18 @@ export function DinerPaymentExperience({
           <Card className="border-border/80">
             <CardHeader>
               <CardTitle>Detalle final</CardTitle>
-              <CardDescription>
-                Revisá los ítems antes de pasar al checkout.
-              </CardDescription>
+              <CardDescription>Revisa los items antes de pasar al checkout.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {orderQuery.data?.sessionStatus === "open" ? (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                  La cuenta todavía no fue cerrada por caja. Cuando te habiliten el pago,
-                  vas a poder continuar desde esta misma pantalla.
+                  Caja todavia no cerro la cuenta. Pedi la cuenta desde el pedido y espera la confirmacion.
                 </div>
               ) : null}
 
               {orderQuery.data?.sessionStatus === "paid" ? (
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                  Esta mesa ya figura como pagada. Si querés, podés ver el comprobante final.
+                  Esta mesa ya figura como pagada.
                 </div>
               ) : null}
 
@@ -196,7 +228,7 @@ export function DinerPaymentExperience({
 
                 {visibleItems.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    No hay ítems facturables en esta mesa todavía.
+                    No hay items facturables en esta mesa todavia.
                   </p>
                 ) : null}
               </div>
@@ -207,12 +239,12 @@ export function DinerPaymentExperience({
             <CardHeader>
               <CardTitle>Propina y total</CardTitle>
               <CardDescription>
-                La propina es opcional y el total se recalcula en el servidor.
+                La propina es opcional y el total final se recalcula en el servidor.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid grid-cols-2 gap-2">
-                {QUICK_TIP_OPTIONS.map((option) => (
+                {tipOptions.map((option) => (
                   <Button
                     key={option}
                     type="button"
@@ -269,9 +301,9 @@ export function DinerPaymentExperience({
               {feedback ? (
                 <p
                   className={`text-sm ${
-                    feedback.includes("pendiente")
+                    feedback.toLowerCase().includes("pendiente")
                       ? "text-amber-700"
-                      : feedback.includes("completar")
+                      : feedback.toLowerCase().includes("no")
                         ? "text-destructive"
                         : "text-muted-foreground"
                   }`}
@@ -280,7 +312,25 @@ export function DinerPaymentExperience({
                 </p>
               ) : null}
 
-              {orderQuery.data?.sessionStatus === "paid" ? (
+              {paymentStatus === "approved" ? (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                  Pago aprobado. Ya podes ver el comprobante final.
+                </div>
+              ) : null}
+
+              {paymentStatus === "rejected" || paymentStatus === "cancelled" ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+                  El ultimo intento de pago no fue aprobado. Podes volver a intentarlo.
+                </div>
+              ) : null}
+
+              {paymentStatus === "pending" ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Mercado Pago sigue procesando el cobro.
+                </div>
+              ) : null}
+
+              {orderQuery.data?.sessionStatus === "paid" || paymentStatus === "approved" ? (
                 <Button asChild className="w-full">
                   <Link href={`/t/${tableId}/done`}>Ver comprobante</Link>
                 </Button>

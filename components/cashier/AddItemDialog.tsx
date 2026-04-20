@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchJson } from "@/lib/fetcher";
+import { dinerMenuResponseSchema } from "@/lib/validations/diner";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
@@ -25,19 +26,14 @@ const menuItemSchema = z.object({
   name: z.string(),
   price: z.number(),
   description: z.string(),
-  image_url: z.string().nullable(),
-  category_id: z.string().uuid(),
+  imageUrl: z.string().nullable(),
 });
 
 const menuCategorySchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
-  preparation_area: z.enum(["cocina", "barra"]),
+  preparationArea: z.enum(["cocina", "barra"]),
   items: z.array(menuItemSchema),
-});
-
-const menuResponseSchema = z.object({
-  categories: z.array(menuCategorySchema),
 });
 
 type MenuItem = z.infer<typeof menuItemSchema>;
@@ -61,7 +57,9 @@ export function AddItemDialog({ tableId, open, onClose }: AddItemDialogProps) {
     queryKey: ["diner-menu"],
     queryFn: async () => {
       const data = await fetchJson<unknown>("/api/diner/menu");
-      return menuResponseSchema.parse(data).categories;
+      return dinerMenuResponseSchema.parse(data).categories.map((category) =>
+        menuCategorySchema.parse(category),
+      );
     },
     staleTime: 60_000, // menu doesn't change often
   });

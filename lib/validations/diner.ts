@@ -67,6 +67,10 @@ export const dinerMenuCategorySchema = z.object({
   items: z.array(dinerMenuItemSchema),
 });
 
+export const dinerMenuResponseSchema = z.object({
+  categories: z.array(dinerMenuCategorySchema),
+});
+
 export const dinerTableSchema = z.object({
   id: z.string().uuid(),
   number: z.number().int(),
@@ -113,8 +117,26 @@ export const dinerOrderResponseSchema = z.object({
   table: dinerTableSchema,
 });
 
+export const dinerPaymentStatusResponseSchema = z.object({
+  orderTotal: z.number(),
+  payment: z
+    .object({
+      id: z.string().uuid(),
+      amount: z.number(),
+      createdAt: z.string(),
+      externalId: z.string().nullable(),
+      provider: z.enum(["mercadopago", "offline"]),
+      status: z.enum(["pending", "approved", "rejected", "cancelled"]),
+    })
+    .nullable(),
+  sessionStatus: z.enum(["open", "awaiting_payment", "paid", "cancelled"]),
+});
+
 export type DinerMenuCategory = z.infer<typeof dinerMenuCategorySchema>;
 export type DinerOrderResponse = z.infer<typeof dinerOrderResponseSchema>;
 export type DinerPaymentCheckoutResponse = z.infer<
   typeof dinerPaymentCheckoutResponseSchema
+>;
+export type DinerPaymentStatusResponse = z.infer<
+  typeof dinerPaymentStatusResponseSchema
 >;

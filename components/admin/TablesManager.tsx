@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, QrCode, Trash2, X, Users, Edit3, Grid2X2, CheckCircle2, ChevronDown } from "lucide-react";
+import { Plus, QrCode, Trash2, X, Users, Edit3, Grid2X2, CheckCircle2, ChevronDown, Download } from "lucide-react";
 import { useState, useTransition, type FormEvent } from "react";
 import type { z } from "zod";
 
@@ -145,7 +145,13 @@ export function TablesManager() {
 
   return (
     <div className="space-y-8 pb-12 relative pt-2">
-      <div className="absolute right-0 -top-[4.5rem]">
+      <div className="absolute right-0 -top-[4.5rem] flex gap-3">
+         <Button asChild variant="outline" className="h-11 px-5 rounded-xl font-medium">
+            <a href="/api/staff/admin/tables/qrs" target="_blank" rel="noreferrer">
+              <Download className="size-4 mr-2" />
+              PDF QRs
+            </a>
+         </Button>
          <Button onClick={() => setIsAdding(!isAdding)} className="h-11 px-6 rounded-xl font-medium shadow-md shadow-primary/20">
             {isAdding ? <X className="size-5 mr-1" /> : <Plus className="size-5 mr-1.5" />}
             {isAdding ? "Cancelar" : "Crear Mesa"}

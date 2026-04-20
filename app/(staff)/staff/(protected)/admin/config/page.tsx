@@ -1,17 +1,12 @@
 import { AdminConfigForm } from "@/components/admin/AdminConfigForm";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { requireAdminStaffSession } from "@/lib/auth/staff";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getRestaurantConfigSnapshot } from "@/lib/restaurant-config";
 
 export default async function AdminConfigPage() {
   await requireAdminStaffSession();
 
-  const admin = supabaseAdmin();
-  const { data } = await admin
-    .from("restaurant_config")
-    .select("mp_access_token, mp_public_key")
-    .eq("id", 1)
-    .maybeSingle();
+  const config = await getRestaurantConfigSnapshot();
 
   return (
     <AdminShell
@@ -20,8 +15,12 @@ export default async function AdminConfigPage() {
       title="Configuracion general"
     >
       <AdminConfigForm
-        hasAccessToken={Boolean(data?.mp_access_token)}
-        mpPublicKey={data?.mp_public_key ?? null}
+        barNotificationsEnabled={config.soundSettings.barNotificationsEnabled}
+        hasAccessToken={config.hasAccessToken}
+        hasPublicKey={config.hasPublicKey}
+        kitchenNotificationsEnabled={config.soundSettings.kitchenNotificationsEnabled}
+        restaurantName={config.name}
+        tipOptions={config.tipOptions}
       />
     </AdminShell>
   );
