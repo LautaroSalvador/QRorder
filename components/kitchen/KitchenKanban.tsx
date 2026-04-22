@@ -37,7 +37,7 @@ function ColumnSection({ title, items, emptyMessage }: ColumnSectionProps) {
 }
 
 export function KitchenKanban() {
-  const { data, error, isFetching, isLoading, refetch } = useKitchenQueue();
+  const { data, error, isLoading, refetch } = useKitchenQueue();
 
   if (isLoading) {
     return (

@@ -185,7 +185,10 @@ export function DashboardCharts() {
               />
               <Tooltip
                 cursor={{ fill: "hsl(var(--muted))" }}
-                formatter={(value: any) => [value, "Pedidos"]}
+                formatter={(value) => [
+                  value as React.ReactNode,
+                  "Pedidos",
+                ]}
               />
               <Bar
                 dataKey="totalQty"
