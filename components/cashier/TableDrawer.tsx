@@ -353,7 +353,8 @@ function PanelBody({
                     {formatCurrency(order.subtotal)}
                   </span>
                 </div>
-                {order.tip > 0 ? (
+                {/* Solo mostramos propina y total final si el comensal ya la seleccionó al pagar */}
+                {(session?.status === "awaiting_payment" || session?.status === "paid") && order.tip > 0 ? (
                   <div className="mt-2 flex items-center justify-between text-base">
                     <span className="text-muted-foreground">Propina</span>
                     <span className="font-medium text-stone-800">
@@ -362,11 +363,20 @@ function PanelBody({
                   </div>
                 ) : null}
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-2xl font-black text-stone-900">Total</span>
+                  <span className="text-2xl font-black text-stone-900">
+                    {session?.status === "open" ? "Total estimado" : "Total final"}
+                  </span>
                   <span className="text-2xl font-black text-primary">
-                    {formatCurrency(order.total)}
+                    {formatCurrency(
+                      session?.status === "open" ? order.subtotal : order.total,
+                    )}
                   </span>
                 </div>
+                {session?.status === "open" && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    La propina se define cuando el comensal paga.
+                  </p>
+                )}
               </div>
             ) : null}
 

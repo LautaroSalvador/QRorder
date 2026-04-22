@@ -1,14 +1,11 @@
 "use client";
 
-import { RefreshCcw } from "lucide-react";
-
 import { KitchenItemCard } from "@/components/kitchen/KitchenItemCard";
 import { useKitchenQueue } from "@/components/kitchen/useKitchenQueue";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 type ColumnSectionProps = {
   title: string;
@@ -77,28 +74,16 @@ export function KitchenKanban() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-[1.75rem] border border-border/80 bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          Actualización automática cada 5 segundos
-        </p>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-        >
-          <RefreshCcw
-            className={cn("size-4", isFetching ? "animate-spin" : undefined)}
-          />
-          ↻ Actualizar
-        </Button>
+      <div className="flex items-center gap-2 rounded-[1.75rem] border border-border/80 bg-card px-4 py-2.5 shadow-sm">
+        <span className="size-2 animate-pulse rounded-full bg-emerald-500" />
+        <p className="text-sm text-muted-foreground">En vivo · actualización automática cada 5 s</p>
       </div>
 
       <Tabs defaultValue="queue" className="w-full">
         <TabsList>
           <TabsTrigger value="queue">Cola</TabsTrigger>
           <TabsTrigger value="runner">
-            Para llevar
+            Cola de mesero
             {readyItems.length > 0 ? (
               <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                 {readyItems.length}
@@ -136,7 +121,7 @@ export function KitchenKanban() {
             </div>
           ) : (
             <div className="flex min-h-64 items-center justify-center rounded-[1.75rem] border border-dashed border-border bg-muted/40 px-6 text-center text-sm text-muted-foreground">
-              No hay platos listos para llevar
+              No hay platos listos para despachar al salón.
             </div>
           )}
         </TabsContent>

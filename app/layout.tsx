@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 import "./globals.css";
 
@@ -24,9 +25,17 @@ export default function RootLayout({
     <html
       lang="es-AR"
       className={`${inter.variable} h-full`}
+      suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground antialiased font-sans">
-        <QueryProvider>{children}</QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>{children}</QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -61,6 +61,10 @@ export function TableChip({ table, onClick }: TableChipProps) {
   const visual = getVisualStatus(table);
   const style = STATUS_STYLES[visual];
 
+  // Avoid repeating "Mesa N" when name is just the default
+  const defaultName = `Mesa ${table.number}`;
+  const showName = table.name && table.name !== defaultName && table.name.trim() !== String(table.number);
+
   return (
     <button
       type="button"
@@ -76,9 +80,11 @@ export function TableChip({ table, onClick }: TableChipProps) {
       <span className={cn("text-2xl font-bold leading-none", style.text)}>
         {table.number}
       </span>
-      <span className="text-[10px] font-medium text-muted-foreground leading-none text-center">
-        {table.name}
-      </span>
+      {showName && (
+        <span className="text-[10px] font-medium text-muted-foreground leading-none text-center truncate max-w-full px-1">
+          {table.name}
+        </span>
+      )}
       {table.active_item_count > 0 ? (
         <span className={cn("text-[10px] font-semibold", style.text)}>
           {table.active_item_count} ítem{table.active_item_count !== 1 ? "s" : ""}

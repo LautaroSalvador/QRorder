@@ -132,7 +132,6 @@ export const adminConfigUpdateSchema = z.object({
         .min(0, "La propina sugerida no puede ser negativa.")
         .max(100, "La propina sugerida no puede superar el 100%."),
     )
-    .min(1, "Ingresa al menos una propina sugerida.")
     .max(5, "Solo puedes guardar hasta 5 sugerencias.")
     .optional(),
   kitchenNotificationsEnabled: z.boolean().optional(),

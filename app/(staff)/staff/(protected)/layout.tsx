@@ -19,7 +19,7 @@ export default async function ProtectedStaffLayout({
     <div className="flex min-h-screen bg-background">
       <StaffSidebar profile={session.profile} />
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen flex-1 flex-col md:pl-64">
         <StaffMobileHeader role={role} />
         <main className="flex-1 p-4 pb-20 md:p-6 md:pb-6">{children}</main>
       </div>

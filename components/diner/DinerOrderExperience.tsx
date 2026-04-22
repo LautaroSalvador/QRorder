@@ -31,7 +31,7 @@ function getStatusLabel(status: string) {
     case "accepted":
       return { label: "Aceptado", tone: "bg-sky-100 text-sky-700" };
     case "in_progress":
-      return { label: "En preparacion", tone: "bg-blue-100 text-blue-700" };
+      return { label: "En preparación", tone: "bg-blue-100 text-blue-700" };
     case "ready":
       return { label: "Listo", tone: "bg-emerald-100 text-emerald-700" };
     case "delivered":
@@ -135,19 +135,19 @@ export function DinerOrderExperience({
       <div className="space-y-8 px-6 py-6">
         {billRequested ? (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Caja ya recibio el aviso de cierre. Cuando confirmen la cuenta, vas a poder pagar desde esta misma mesa.
+            Caja ya recibió el aviso de cierre. Cuando confirmen la cuenta, vas a poder pagar desde esta misma mesa.
           </div>
         ) : null}
 
         {sessionStatus === "awaiting_payment" ? (
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-            La cuenta ya esta lista para pagar.
+            La cuenta ya está lista para pagar.
           </div>
         ) : null}
 
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">Items confirmados</h2>
+            <h2 className="text-xl font-semibold text-foreground">Ítems confirmados</h2>
             <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
               {liveItems.length}
             </span>
@@ -155,7 +155,7 @@ export function DinerOrderExperience({
 
           {liveItems.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
-              Todavia no hay items confirmados para esta mesa.
+              Todavía no hay ítems confirmados para esta mesa.
             </div>
           ) : (
             <div className="space-y-4">
@@ -203,7 +203,7 @@ export function DinerOrderExperience({
 
           {cartItems.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
-              No hay items pendientes de confirmar.
+              No hay ítems pendientes de confirmar.
             </div>
           ) : (
             <div className="space-y-4 rounded-[1.5rem] bg-secondary/35 p-5">

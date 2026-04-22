@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import type { User } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -23,7 +24,7 @@ export type StaffSession = {
   profile: StaffProfile;
 };
 
-export async function getStaffSession(): Promise<StaffSession | null> {
+export const getStaffSession = cache(async (): Promise<StaffSession | null> => {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -54,7 +55,7 @@ export async function getStaffSession(): Promise<StaffSession | null> {
     user,
     profile: parsedProfile.data,
   };
-}
+});
 
 export async function requireStaffSession() {
   const session = await getStaffSession();

@@ -1,5 +1,6 @@
 import type { StaffRole } from "@/lib/staff";
 
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { StaffSignOutButton } from "@/components/staff/StaffSignOutButton";
 
 type StaffMobileHeaderProps = {
@@ -24,7 +25,10 @@ export function StaffMobileHeader({ role }: StaffMobileHeaderProps) {
         </p>
         <p className="text-sm text-muted-foreground">{roleLabel}</p>
       </div>
-      <StaffSignOutButton variant="ghost" />
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
+        <StaffSignOutButton variant="ghost" />
+      </div>
     </div>
   );
 }

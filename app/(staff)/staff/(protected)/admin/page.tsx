@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import {
+  BarChart2,
   ChefHat,
   GlassWater,
   LayoutPanelTop,
@@ -11,10 +12,10 @@ import {
 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
+import { DashboardCharts } from "@/components/admin/DashboardCharts";
 import { DashboardKPIs } from "@/components/admin/DashboardKPIs";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -44,13 +45,13 @@ const adminCards = [
     href: "/staff/kitchen",
     icon: ChefHat,
     title: "Cocina",
-    description: "Entrar a la cola de cocina y seguir los pedidos activos.",
+    description: "Cola de cocina y pedidos activos.",
   },
   {
     href: "/staff/bar",
     icon: GlassWater,
     title: "Barra",
-    description: "Controlar bebidas pendientes, en preparación y listas.",
+    description: "Bebidas pendientes, en preparación y listas.",
   },
   {
     href: "/staff/admin/users",
@@ -59,10 +60,16 @@ const adminCards = [
     description: "Invitaciones, roles y desactivación de accesos.",
   },
   {
+    href: "/staff/admin/reports",
+    icon: BarChart2,
+    title: "Reportes",
+    description: "Ventas, productos más pedidos y tiempos de preparación.",
+  },
+  {
     href: "/staff/admin/config",
     icon: Settings,
     title: "Configuración",
-    description: "Reservado para la siguiente parte del backbone admin.",
+    description: "Identidad del restaurante, Mercado Pago y propinas.",
   },
 ];
 
@@ -80,23 +87,23 @@ export default async function AdminPage() {
         { href: "/staff/admin/menu/categories", label: "Menú" },
         { href: "/staff/admin/tables", label: "Mesas" },
         { href: "/staff/admin/users", label: "Usuarios" },
+        { href: "/staff/admin/reports", label: "Reportes" },
         { href: "/staff/admin/config", label: "Config" },
       ]}
     >
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {adminCards.map(({ description, href, icon: Icon, title }) => (
           <Link key={href} href={href}>
-            <Card className="h-full transition-transform hover:-translate-y-0.5">
+            <Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-md">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3 text-lg">
-                  <Icon className="size-5 text-primary" />
+                  <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon className="size-5" />
+                  </div>
                   {title}
                 </CardTitle>
                 <CardDescription>{description}</CardDescription>
               </CardHeader>
-              <CardContent className="text-sm text-primary">
-                Abrir sección
-              </CardContent>
             </Card>
           </Link>
         ))}
@@ -106,6 +113,9 @@ export default async function AdminPage() {
         <h2 className="mb-4 text-lg font-semibold">Indicadores de hoy</h2>
         <DashboardKPIs />
       </section>
+
+      <DashboardCharts />
     </AdminShell>
   );
 }
+

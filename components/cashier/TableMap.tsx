@@ -238,7 +238,7 @@ function TableCard({
       <span className="mt-2 text-[11px] font-medium uppercase tracking-[0.16em] text-stone-500">
         {table.active_item_count > 0
           ? `${table.active_item_count} item${table.active_item_count === 1 ? "" : "s"}`
-          : `Mesa ${table.number}`}
+          : `Cap. ${table.capacity}`}
       </span>
     </button>
   );
@@ -452,18 +452,18 @@ export function TableMap({
 
         {canEditLayout ? (
           <div className="flex items-center gap-3">
-            <p className="text-xs text-muted-foreground">
-              {isEditMode
-                ? "Arrastra las mesas y suelta para guardar la nueva posicion."
-                : "Activa el modo edicion para reorganizar el salon."}
-            </p>
+            {isEditMode && (
+              <p className="text-xs text-muted-foreground">
+                Arrastrá las mesas y soltá para guardar la nueva posición.
+              </p>
+            )}
             <Button
               type="button"
               variant={isEditMode ? "default" : "outline"}
               onClick={() => setIsEditMode((currentValue) => !currentValue)}
             >
               {isEditMode ? <Save className="mr-2 h-4 w-4" /> : <Grip className="mr-2 h-4 w-4" />}
-              {isEditMode ? "Salir de edicion" : "Modo edicion"}
+              {isEditMode ? "Salir de edición" : "Mover mesas"}
             </Button>
           </div>
         ) : null}

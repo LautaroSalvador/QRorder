@@ -89,11 +89,11 @@ export async function PATCH(request: NextRequest) {
     const updateData: RestaurantConfigUpdate = {};
     const nextSettings = normalizeSoundSettings(currentConfig.settings);
 
-    if (parsedBody.data.restaurantName) {
+    if (parsedBody.data.restaurantName !== undefined) {
       updateData.name = parsedBody.data.restaurantName;
     }
 
-    if (parsedBody.data.tipOptions) {
+    if (parsedBody.data.tipOptions !== undefined && parsedBody.data.tipOptions.length > 0) {
       updateData.tip_options = normalizeTipOptions(parsedBody.data.tipOptions);
     }
 

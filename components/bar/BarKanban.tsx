@@ -1,14 +1,11 @@
 "use client";
 
-import { RefreshCcw } from "lucide-react";
-
 import { BarItemCard } from "@/components/bar/BarItemCard";
 import { useBarQueue } from "@/components/bar/useBarQueue";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 type ColumnSectionProps = {
   title: string;
@@ -40,7 +37,7 @@ function ColumnSection({ title, items, emptyMessage }: ColumnSectionProps) {
 }
 
 export function BarKanban() {
-  const { data, error, isFetching, isLoading, refetch } = useBarQueue();
+  const { data, error, isLoading, refetch } = useBarQueue();
 
   if (isLoading) {
     return (
@@ -58,9 +55,7 @@ export function BarKanban() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-destructive">
-            {error instanceof Error
-              ? error.message
-              : "Ocurrió un error inesperado."}
+            {error instanceof Error ? error.message : "Ocurrió un error inesperado."}
           </p>
           <Button type="button" variant="outline" onClick={() => void refetch()}>
             Reintentar
@@ -77,28 +72,17 @@ export function BarKanban() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-[1.75rem] border border-border/80 bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          Actualización automática cada 5 segundos
-        </p>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-        >
-          <RefreshCcw
-            className={cn("size-4", isFetching ? "animate-spin" : undefined)}
-          />
-          ↻ Actualizar
-        </Button>
+      {/* Live indicator — polling handles refresh, no manual button needed */}
+      <div className="flex items-center gap-2 rounded-[1.75rem] border border-border/80 bg-card px-4 py-2.5 shadow-sm">
+        <span className="size-2 animate-pulse rounded-full bg-emerald-500" />
+        <p className="text-sm text-muted-foreground">En vivo · actualización automática cada 5 s</p>
       </div>
 
       <Tabs defaultValue="queue" className="w-full">
         <TabsList>
           <TabsTrigger value="queue">Cola</TabsTrigger>
           <TabsTrigger value="runner">
-            Para llevar
+            Cola de mesero
             {readyItems.length > 0 ? (
               <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                 {readyItems.length}
@@ -136,7 +120,7 @@ export function BarKanban() {
             </div>
           ) : (
             <div className="flex min-h-64 items-center justify-center rounded-[1.75rem] border border-dashed border-border bg-muted/40 px-6 text-center text-sm text-muted-foreground">
-              No hay ítems listos para llevar
+              No hay ítems listos para despachar al salón.
             </div>
           )}
         </TabsContent>
